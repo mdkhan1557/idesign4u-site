@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Transparent, affordable pricing for web design, branding, and digital marketing. No hidden fees."/>
+  <title>Pricing | I Design 4 U</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+
+    /* ═══════════════════════════════════════════════════
+       CURRENCY BACKGROUND — PORTFOLIO STYLE
+       Same technique as portfolio.css:
+         fixed layers, parallax-ready, high-visibility glow,
+         multi-layer text-shadow, ease-in-out bob animation,
+         rising particles + wave blobs
+       ═══════════════════════════════════════════════════ */
+
+    /* Layer 0 — slow rotating gradient wave blobs */
+    #pr-bg-canvas {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; overflow: hidden;
+    }
+    .pr-wave {
+      position: absolute;
+      width: 200%; height: 200%;
+      left: -50%; top: -50%;
+      border-radius: 45%;
+      animation: prWaveSpin linear infinite;
+      will-change: transform;
+    }
+    .pr-wave-1 {
+      background: radial-gradient(ellipse 52% 48% at 50% 50%,
+        rgba(108,71,255,.55) 0%, rgba(108,71,255,.18) 40%, transparent 68%);
+      animation-duration: 26s; opacity: .22;
+    }
+    .pr-wave-2 {
+      background: radial-gradient(ellipse 48% 52% at 50% 50%,
+        rgba(0,229,160,.50) 0%, rgba(0,229,160,.15) 42%, transparent 70%);
+      animation-duration: 38s; animation-direction: reverse; opacity: .16;
+    }
+    .pr-wave-3 {
+      background: radial-gradient(ellipse 55% 50% at 50% 50%,
+        rgba(245,166,35,.45) 0%, rgba(245,166,35,.12) 44%, transparent 72%);
+      animation-duration: 50s; opacity: .13;
+    }
+    @keyframes prWaveSpin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    /* Layer 1 — drifting grid lines with pulse */
+    .pr-grid {
+      position: fixed; inset: 0; z-index: 1;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(108,71,255,.13) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(108,71,255,.13) 1px, transparent 1px);
+      background-size: 64px 64px;
+      animation: prGridDrift 22s linear infinite, prGridPulse 6s ease-in-out infinite alternate;
+    }
+    @keyframes prGridDrift {
+      0%   { background-position: 0 0; }
+      100% { background-position: 64px 64px; }
+    }
+    @keyframes prGridPulse {
+      0%   { opacity: .5; }
+      100% { opacity: 1; }
+    }
+
+    /* Layer 2 — floating currency symbols */
+    #pr-float-layer {
+      position: fixed; inset: 0; z-index: 2;
+      pointer-events: none; overflow: hidden;
+      will-change: transform;
+    }
+
+    /* Currency symbol style — same as pf-float-icon in portfolio */
+    .pr-curr {
+      position: absolute;
+      font-family: 'Syne', 'DM Sans', sans-serif;
+      font-weight: 800;
+      user-select: none;
+      pointer-events: none;
+      will-change: transform, opacity;
+      /* Multi-layer text glow — matches portfolio icons */
+      text-shadow:
+        0 0  8px currentColor,
+        0 0 22px currentColor,
+        0 0 42px rgba(108,71,255,.3);
+      animation: prCurrBob ease-in-out infinite;
+    }
+
+    /* Bob animation — same keyframe shape as portfolio pf-floatBob */
+    @keyframes prCurrBob {
+      0%   { transform: translateY(0px)    rotate(0deg)   scale(1);    opacity: var(--co, .32); }
+      20%  { transform: translateY(-34px)  rotate(7deg)   scale(1.05); opacity: calc(var(--co, .32)*1.45); }
+      50%  { transform: translateY(-16px)  rotate(-5deg)  scale(.97);  opacity: var(--co, .32); }
+      75%  { transform: translateY(-46px)  rotate(5deg)   scale(1.03); opacity: calc(var(--co, .32)*.82); }
+      100% { transform: translateY(0px)    rotate(0deg)   scale(1);    opacity: var(--co, .32); }
+    }
+
+    /* Rising particle dots */
+    .pr-particle {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: prRise linear infinite;
+      will-change: transform, opacity;
+      box-shadow: 0 0 8px 3px currentColor;
+    }
+    @keyframes prRise {
+      0%   { transform: translateY(100vh) translateX(0); opacity: 0; }
+      8%   { opacity: 1; }
+      88%  { opacity: .75; }
+      100% { transform: translateY(-10vh) translateX(var(--drift,20px)); opacity: 0; }
+    }
+
+    /* All page content sits above bg layers */
+    .nav, .page-hero, section, .surface-section,
+    .cta-banner, footer, #scrollTop {
+      position: relative; z-index: 10;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       PRICING TOGGLE (unchanged)
+       ═══════════════════════════════════════════════════ */
+    .pricing-toggle {
+      display: flex; align-items: center; gap: 1rem;
+      justify-content: center; margin: 2rem 0 3rem;
+    }
+    .toggle-label { font-size: .88rem; color: var(--muted); font-weight: 500; }
+    .toggle-label.active { color: var(--text); font-weight: 600; }
+    .toggle-switch {
+      width: 52px; height: 28px; border-radius: 100px;
+      background: var(--accent); position: relative; cursor: none;
+      transition: background .3s;
+    }
+    .toggle-switch::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #fff; transition: transform .3s;
+    }
+    .toggle-switch.yearly::after { transform: translateX(24px); }
+    .save-badge {
+      display: inline-block; padding: .2rem .6rem;
+      background: rgba(0,229,160,.12); border: 1px solid rgba(0,229,160,.25);
+      border-radius: 100px; font-size: .7rem; color: var(--accent3);
+      font-weight: 700;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       OFFER PRICE STYLES
+       ═══════════════════════════════════════════════════ */
+    .original-price {
+      font-size: .88rem; color: var(--muted);
+      text-decoration: line-through; margin-bottom: .2rem;
+      display: block; font-family: var(--font-head);
+      font-weight: 600; opacity: .6;
+    }
+    .offer-price {
+      display: flex; align-items: baseline; gap: .1rem; margin-bottom: .2rem;
+    }
+    .offer-price sup {
+      font-size: 1.1rem; font-family: var(--font-head);
+      font-weight: 700; color: var(--accent2);
+    }
+    .offer-price .offer-val {
+      font-family: var(--font-head); font-size: 2.8rem;
+      font-weight: 800; line-height: 1; color: var(--accent2);
+    }
+    .offer-price sub { font-size: .9rem; font-weight: 400; color: var(--muted); }
+    .offer-badge {
+      display: inline-block; padding: .18rem .6rem;
+      background: rgba(255,77,141,.12); border: 1px solid rgba(255,77,141,.3);
+      border-radius: 100px; font-size: .68rem; font-weight: 700;
+      color: var(--accent2); margin-bottom: .5rem; letter-spacing: .5px;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       MONTHLY PLANS
+       ═══════════════════════════════════════════════════ */
+    #monthlyPlans { display: none; }
+    #monthlyPlans.visible { display: grid; }
+    .monthly-price {
+      font-family: var(--font-head); font-size: 2.8rem;
+      font-weight: 800; line-height: 1; margin-bottom: .3rem;
+    }
+    .monthly-price sup { font-size: 1.1rem; vertical-align: super; }
+    .monthly-price sub { font-size: .9rem; font-weight: 400; color: var(--muted); }
+    .setup-fee-note {
+      margin-top: 2rem; padding: 1rem 1.4rem;
+      background: rgba(108,71,255,.08); border: 1px solid rgba(108,71,255,.25);
+      border-radius: 12px; font-size: .84rem; color: var(--muted);
+      text-align: center; line-height: 1.6;
+    }
+    .setup-fee-note strong { color: var(--accent); font-weight: 700; }
+
+    /* ═══════════════════════════════════════════════════
+       COMPARE TABLE (restored from original)
+       ═══════════════════════════════════════════════════ */
+    .compare-table {
+      width: 100%; border-collapse: collapse;
+      margin-top: 3rem; background: var(--card);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .compare-table th {
+      background: var(--card2); padding: 1.2rem 1.5rem;
+      text-align: left; font-family: var(--font-head);
+      font-size: .82rem; font-weight: 700;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-table th:first-child { border-right: 1px solid var(--border); }
+    .compare-table th.featured-col { color: var(--accent); }
+    .compare-table td {
+      padding: 1rem 1.5rem; font-size: .84rem; color: var(--muted);
+      border-bottom: 1px solid rgba(108,71,255,.07);
+      vertical-align: middle;
+    }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table td:first-child { font-weight: 600; color: var(--text); border-right: 1px solid var(--border); }
+    .compare-table td .yes { color: var(--accent3); font-size: 1rem; }
+    .compare-table td .no  { color: var(--accent2); font-size: 1rem; }
+    .compare-table tr:hover td { background: rgba(108,71,255,.03); }
+
+    @media(max-width:768px) {
+      .compare-table { display: none; }
+      .pr-curr { font-size: 1rem !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     BACKGROUND LAYER STACK  (portfolio-style, z 0–2)
+     Layer 0 — #pr-bg-canvas   : rotating gradient wave blobs
+     Layer 1 — .pr-grid        : drifting grid lines
+     Layer 2 — #pr-float-layer : currency symbols + particles (JS)
+     ═══════════════════════════════════════════════════════ -->
+<div id="pr-bg-canvas" aria-hidden="true">
+  <div class="pr-wave pr-wave-1"></div>
+  <div class="pr-wave pr-wave-2"></div>
+  <div class="pr-wave pr-wave-3"></div>
+</div>
+<div class="pr-grid" aria-hidden="true"></div>
+<div id="pr-float-layer" aria-hidden="true"></div>
+
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV (unchanged) -->
+<nav class="nav">
+  <a href="index.html" class="nav-logo">iDesign4U</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="portfolio.html">Portfolio</a></li>
+    <li><a href="pricing.html">Pricing</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="contact.html" class="nav-cta">Get a Quote</a></li>
+  </ul>
+  <button class="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+</nav>
+<div class="nav-mobile">
+  <a href="index.html">Home</a>
+  <a href="services.html">Services</a>
+  <a href="portfolio.html">Portfolio</a>
+  <a href="pricing.html">Pricing</a>
+  <a href="about.html">About</a>
+  <a href="contact.html">Contact</a>
+</div>
+
+<!-- PAGE HERO (unchanged) -->
+<div class="page-hero">
+  <div class="page-hero-bg"></div>
+  <div class="page-hero-grid"></div>
+  <div class="container page-hero-content">
+    <span class="section-label reveal">Transparent Pricing</span>
+    <h1 class="reveal">Plans for Every <span class="grad">Budget</span></h1>
+    <p class="reveal">No hidden fees. No surprises. Just honest, competitive pricing for world-class design.</p>
+  </div>
+</div>
+
+<!-- PRICING SECTION -->
+<section class="section">
+  <div class="container">
+
+    <!-- Toggle -->
+    <div class="pricing-toggle reveal">
+      <span class="toggle-label active" id="monthlyLabel">One-Time</span>
+      <div class="toggle-switch" id="pricingToggle" onclick="togglePricing()"></div>
+      <span class="toggle-label" id="yearlyLabel">Monthly Retainer <span class="save-badge">Save 20%</span></span>
+    </div>
+
+    <!-- ONE-TIME HEADING -->
+    <div class="text-center mb-5" id="onetimeHeading">
+      <span class="section-label reveal">Website Packages</span>
+      <h2 class="reveal">Web Design <span class="grad">Plans</span></h2>
+    </div>
+
+    <!-- ONE-TIME PLANS -->
+    <div class="grid-3 mb-5" id="webPlans">
+
+      <div class="pcard reveal">
+        <div class="plan-name">Starter Website</div>
+        <span class="original-price">₹8,999</span>
+        <span class="offer-badge">LIMITED OFFER</span>
+        <div class="offer-price">
+          <sup>₹</sup><span class="offer-val">5,999</span><sub> one-time</sub>
+        </div>
+        <div class="plan-desc">Perfect for small businesses and freelancers getting online for the first time.</div>
+        <ul class="plan-features">
+          <li>5-Page Responsive Website</li>
+          <li>Mobile Optimised Design</li>
+          <li>Basic SEO Setup</li>
+          <li>Contact Form</li>
+          <li>Google Analytics Integration</li>
+          <li>1 Month Free Support</li>
+          <li class="crossed">CMS / Blog</li>
+          <li class="crossed">Custom Animations</li>
+        </ul>
+        <a href="contact.html?plan=starter" class="btn btn-outline w-full" style="display:flex;justify-content:center">Get Started →</a>
+      </div>
+
+      <div class="pcard featured reveal">
+        <div class="pcard-badge">★ Most Popular</div>
+        <div class="plan-name">Business Website</div>
+        <span class="original-price">₹10,999</span>
+        <span class="offer-badge">LIMITED OFFER</span>
+        <div class="offer-price">
+          <sup>₹</sup><span class="offer-val">7,999</span><sub> one-time</sub>
+        </div>
+        <div class="plan-desc">For growing businesses that want a premium, high-converting online presence.</div>
+        <ul class="plan-features">
+          <li>Up to 15 Pages</li>
+          <li>Custom UI/UX Design</li>
+          <li>WordPress / CMS</li>
+          <li>Advanced SEO Setup</li>
+          <li>Custom Animations</li>
+          <li>Blog / News Section</li>
+          <li>Speed Optimisation</li>
+          <li>3 Months Free Support</li>
+        </ul>
+        <a href="contact.html?plan=business" class="btn btn-primary w-full" style="display:flex;justify-content:center">Get Started →</a>
+      </div>
+
+      <div class="pcard reveal">
+        <div class="plan-name">Pro Ecommerce Website</div>
+        <span class="original-price">₹14,999</span>
+        <span class="offer-badge">LIMITED OFFER</span>
+        <div class="offer-price">
+          <sup>₹</sup><span class="offer-val">11,999</span><sub> one-time</sub>
+        </div>
+        <div class="plan-desc">Full-scale e-commerce solution for businesses ready to sell online.</div>
+        <ul class="plan-features">
+          <li>Unlimited Pages</li>
+          <li>E-Commerce Integration</li>
+          <li>Product Catalog &amp; Filters</li>
+          <li>Cart &amp; Checkout</li>
+          <li>Payment Gateway Setup</li>
+          <li>Priority Support (6 Months)</li>
+          <li>Monthly Analytics Reports</li>
+          <li>Dedicated Project Manager</li>
+        </ul>
+        <a href="contact.html?plan=pro-ecommerce" class="btn btn-outline w-full" style="display:flex;justify-content:center">Get Started →</a>
+      </div>
+
+    </div><!-- /webPlans -->
+
+    <!-- MONTHLY HEADING (hidden by default) -->
+    <div class="text-center mb-5" id="monthlyHeading" style="display:none">
+      <span class="section-label">Monthly Plans</span>
+      <h2>Monthly Retainer <span class="grad">Plans</span></h2>
+    </div>
+
+    <!-- MONTHLY PLANS (hidden by default) -->
+    <div class="grid-3 mb-3" id="monthlyPlans">
+
+      <div class="pcard reveal">
+        <div class="plan-name">Basic</div>
+        <div class="monthly-price"><sup>₹</sup>499<sub>/month</sub></div>
+        <div class="plan-desc">Essential monthly support for small business websites.</div>
+        <ul class="plan-features">
+          <li>5-Page Website Maintained</li>
+          <li>Monthly Content Updates</li>
+          <li>Security Monitoring</li>
+          <li>Uptime Monitoring</li>
+          <li>Basic SEO Report</li>
+          <li>Email Support</li>
+          <li class="crossed">Priority Support</li>
+          <li class="crossed">Custom Development</li>
+        </ul>
+        <a href="contact.html?plan=basic-monthly" class="btn btn-outline w-full" style="display:flex;justify-content:center">Get Started →</a>
+      </div>
+
+      <div class="pcard featured reveal">
+        <div class="pcard-badge">★ Most Popular</div>
+        <div class="plan-name">Business</div>
+        <div class="monthly-price"><sup>₹</sup>699<sub>/month</sub></div>
+        <div class="plan-desc">Complete monthly management for growing businesses.</div>
+        <ul class="plan-features">
+          <li>Up to 15 Pages Maintained</li>
+          <li>Unlimited Content Updates</li>
+          <li>Performance Optimisation</li>
+          <li>Monthly SEO Management</li>
+          <li>Google Analytics Reports</li>
+          <li>Plugin &amp; Security Updates</li>
+          <li>Priority Email Support</li>
+          <li>Monthly Strategy Call</li>
+        </ul>
+        <a href="contact.html?plan=business-monthly" class="btn btn-primary w-full" style="display:flex;justify-content:center">Get Started →</a>
+      </div>
+
+      <div class="pcard reveal">
+        <div class="plan-name">Pro</div>
+        <div class="monthly-price"><sup>₹</sup>999<sub>/month</sub></div>
+        <div class="plan-desc">Full-service monthly retainer for e-commerce and enterprise.</div>
+        <ul class="plan-features">
+          <li>Unlimited Pages</li>
+          <li>E-Commerce Management</li>
+          <li>Advanced SEO &amp; Analytics</li>
+          <li>Custom Feature Development</li>
+          <li>Dedicated Project Manager</li>
+          <li>24/7 Priority Support</li>
+          <li>Weekly Strategy Calls</li>
+          <li>Performance Dashboard</li>
+        </ul>
+        <a href="contact.html?plan=pro-monthly" class="btn btn-outline w-full" style="display:flex;justify-content:center">Get Started →</a>
+      </div>
+
+    </div><!-- /monthlyPlans -->
+
+    <!-- SETUP FEE NOTE (hidden by default, shows in monthly mode) -->
+    <div class="setup-fee-note" id="setupFeeNote" style="display:none">
+      <strong>One-time Setup Fee: ₹1,999</strong> — includes hosting setup &amp; configuration
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         MONTHLY PLAN SERVICE TERMS BANNER
+         Shown only in monthly mode. Hidden in one-time mode.
+         ═══════════════════════════════════════════════════════ -->
+    <div id="monthlyTermsBanner" style="display:none; margin-top:2.5rem;">
+
+      <!-- Top label -->
+      <div style="text-align:center; margin-bottom:1.2rem;">
+        <span class="section-label">How Monthly Plans Work</span>
+      </div>
+
+      <!-- Main banner card -->
+      <div style="
+        background: linear-gradient(135deg, rgba(108,71,255,.10) 0%, rgba(255,77,141,.07) 100%);
+        border: 1.5px solid rgba(108,71,255,.35);
+        border-radius: 20px;
+        padding: 2rem 2.2rem;
+        position: relative;
+        overflow: hidden;
+      ">
+        <!-- Decorative top accent line -->
+        <div style="
+          position:absolute; top:0; left:0; right:0; height:3px;
+          background: linear-gradient(90deg, #6c47ff, #ff4d8d, #00e5a0);
+          border-radius: 20px 20px 0 0;
+        "></div>
+
+        <!-- Icon + headline row -->
+        <div style="display:flex; align-items:flex-start; gap:1.2rem; margin-bottom:1.6rem;">
+          <div style="
+            width:48px; height:48px; border-radius:12px; flex-shrink:0;
+            background: rgba(108,71,255,.18);
+            border: 1px solid rgba(108,71,255,.3);
+            display:flex; align-items:center; justify-content:center;
+            font-size:1.4rem;
+          ">📋</div>
+          <div>
+            <h3 style="
+              font-family: var(--font-head); font-size:1.15rem; font-weight:800;
+              color: var(--text); margin-bottom:.35rem; line-height:1.3;
+            ">Monthly Subscription — Service Terms &amp; Conditions</h3>
+            <p style="font-size:.82rem; color:var(--muted); line-height:1.6; margin:0;">
+              Please review the following terms before subscribing to a Monthly Retainer Plan.
+            </p>
+          </div>
+        </div>
+
+        <!-- Terms grid — 2 columns on desktop, 1 on mobile -->
+        <div style="
+          display:grid; grid-template-columns:1fr 1fr; gap:1rem;
+          margin-bottom:1.6rem;
+        " class="monthly-terms-grid">
+
+          <!-- Term 1: Active subscription -->
+          <div style="
+            background: rgba(0,229,160,.07);
+            border: 1px solid rgba(0,229,160,.2);
+            border-radius:14px; padding:1.2rem 1.3rem;
+            display:flex; gap:.9rem; align-items:flex-start;
+          ">
+            <span style="font-size:1.3rem; flex-shrink:0; margin-top:.05rem;">✅</span>
+            <div>
+              <strong style="font-size:.88rem; color:var(--accent3); display:block; margin-bottom:.3rem; font-family:var(--font-head);">
+                Website Active While Subscribed
+              </strong>
+              <p style="font-size:.8rem; color:var(--muted); line-height:1.65; margin:0;">
+                Your website remains fully live, hosted, and maintained for as long as your monthly subscription is active and payments are up to date.
+              </p>
+            </div>
+          </div>
+
+          <!-- Term 2: Suspension on non-payment -->
+          <div style="
+            background: rgba(255,77,141,.07);
+            border: 1px solid rgba(255,77,141,.22);
+            border-radius:14px; padding:1.2rem 1.3rem;
+            display:flex; gap:.9rem; align-items:flex-start;
+          ">
+            <span style="font-size:1.3rem; flex-shrink:0; margin-top:.05rem;">⚠️</span>
+            <div>
+              <strong style="font-size:.88rem; color:var(--accent2); display:block; margin-bottom:.3rem; font-family:var(--font-head);">
+                Service Suspended on Non-Payment
+              </strong>
+              <p style="font-size:.8rem; color:var(--muted); line-height:1.65; margin:0;">
+                If a monthly payment is missed or the subscription is cancelled, hosting and all associated services will be suspended until the outstanding balance is settled.
+              </p>
+            </div>
+          </div>
+
+          <!-- Term 3: Data & files -->
+          <div style="
+            background: rgba(56,189,248,.07);
+            border: 1px solid rgba(56,189,248,.2);
+            border-radius:14px; padding:1.2rem 1.3rem;
+            display:flex; gap:.9rem; align-items:flex-start;
+          ">
+            <span style="font-size:1.3rem; flex-shrink:0; margin-top:.05rem;">💾</span>
+            <div>
+              <strong style="font-size:.88rem; color:rgba(56,189,248,.9); display:block; margin-bottom:.3rem; font-family:var(--font-head);">
+                Your Data Is Always Safe
+              </strong>
+              <p style="font-size:.8rem; color:var(--muted); line-height:1.65; margin:0;">
+                All your website files, content, and data are securely backed up. In the event of suspension, your data is retained for up to 30 days, giving you ample time to reactivate or migrate.
+              </p>
+            </div>
+          </div>
+
+          <!-- Term 4: Reactivation -->
+          <div style="
+            background: rgba(108,71,255,.07);
+            border: 1px solid rgba(108,71,255,.22);
+            border-radius:14px; padding:1.2rem 1.3rem;
+            display:flex; gap:.9rem; align-items:flex-start;
+          ">
+            <span style="font-size:1.3rem; flex-shrink:0; margin-top:.05rem;">🔄</span>
+            <div>
+              <strong style="font-size:.88rem; color:var(--accent); display:block; margin-bottom:.3rem; font-family:var(--font-head);">
+                Easy Reactivation Anytime
+              </strong>
+              <p style="font-size:.8rem; color:var(--muted); line-height:1.65; margin:0;">
+                You can reactivate your plan at any time by resuming your subscription. Your website will be restored promptly, typically within 24 hours of payment confirmation.
+              </p>
+            </div>
+          </div>
+
+        </div><!-- /terms grid -->
+
+        <!-- Bottom highlight row — key policy points -->
+        <div style="
+          background: rgba(7,7,15,.45);
+          border: 1px solid rgba(108,71,255,.2);
+          border-radius: 12px;
+          padding: 1rem 1.4rem;
+          display: flex;
+          gap: 2rem;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: center;
+        ">
+          <div style="display:flex; align-items:center; gap:.5rem; font-size:.78rem; color:var(--muted);">
+            <span style="color:var(--accent3); font-size:.95rem;">✓</span>
+            <span>Cancel anytime — no lock-in contracts</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:.5rem; font-size:.78rem; color:var(--muted);">
+            <span style="color:var(--accent3); font-size:.95rem;">✓</span>
+            <span>30-day advance notice recommended before cancellation</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:.5rem; font-size:.78rem; color:var(--muted);">
+            <span style="color:var(--accent3); font-size:.95rem;">✓</span>
+            <span>Data retained for 30 days post-suspension</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:.5rem; font-size:.78rem; color:var(--muted);">
+            <span style="color:var(--accent3); font-size:.95rem;">✓</span>
+            <span>Reactivation within 24 hours of payment</span>
+          </div>
+        </div>
+
+        <!-- Optional upgrade nudge -->
+        <p style="
+          margin-top:1.4rem; text-align:center;
+          font-size:.8rem; color:var(--muted); line-height:1.65;
+        ">
+          Prefer full ownership of your website?
+          <a href="#" onclick="togglePricing(); return false;" style="color:var(--accent); font-weight:600; text-decoration:none;">
+            Switch to a One-Time Plan →
+          </a>
+          — pay once and own your site outright, with no ongoing subscription required.
+        </p>
+
+      </div><!-- /banner card -->
+    </div><!-- /monthlyTermsBanner -->
+
+    <style>
+      /* Responsive: stack terms grid on mobile */
+      @media (max-width: 640px) {
+        .monthly-terms-grid {
+          grid-template-columns: 1fr !important;
+        }
+      }
+    </style>
+
+    <!-- ═══════════════════════════════════════════════
+         FEATURE COMPARISON TABLE (restored from original)
+         Always visible in one-time mode.
+         Hidden in monthly mode via JS.
+         ═══════════════════════════════════════════════ -->
+    <div id="compareSection">
+      <hr class="divider" style="margin:3rem 0"/>
+      <div class="text-center mb-4">
+        <span class="section-label reveal">Feature Comparison</span>
+        <h2 class="reveal">Compare Web Design <span class="grad">Plans</span></h2>
+      </div>
+      <div class="reveal" style="overflow-x:auto">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th style="width:35%">Feature</th>
+              <th>Starter</th>
+              <th class="featured-col">Business ★</th>
+              <th>Pro Ecommerce</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Number of Pages</td><td>Up to 5</td><td>Up to 15</td><td>Unlimited</td></tr>
+            <tr><td>Responsive Design</td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+            <tr><td>CMS / WordPress</td><td><span class="no">✗</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+            <tr><td>E-Commerce</td><td><span class="no">✗</span></td><td><span class="no">✗</span></td><td><span class="yes">✓</span></td></tr>
+            <tr><td>Custom Animations</td><td><span class="no">✗</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+            <tr><td>SEO Setup</td><td>Basic</td><td>Advanced</td><td>Full Technical</td></tr>
+            <tr><td>Speed Optimisation</td><td>Basic</td><td>Advanced</td><td>Premium</td></tr>
+            <tr><td>Post-Launch Support</td><td>1 Month</td><td>3 Months</td><td>6 Months</td></tr>
+            <tr><td>Payment Gateway</td><td><span class="no">✗</span></td><td><span class="no">✗</span></td><td><span class="yes">✓</span></td></tr>
+            <tr><td>Dedicated PM</td><td><span class="no">✗</span></td><td><span class="no">✗</span></td><td><span class="yes">✓</span></td></tr>
+            <tr><td>Delivery Time</td><td>7–10 days</td><td>10–14 days</td><td>14–21 days</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div><!-- /compareSection -->
+
+  </div>
+</section>
+
+<!-- FAQ (unchanged) -->
+<div class="surface-section">
+  <section class="section">
+    <div class="container">
+      <div class="text-center mb-5">
+        <span class="section-label reveal">FAQ</span>
+        <h2 class="reveal">Frequently Asked <span class="grad">Questions</span></h2>
+      </div>
+      <div style="max-width:720px;margin:0 auto">
+        <div class="faq-item reveal">
+          <div class="faq-q">What is included in the free consultation? <span class="faq-icon">+</span></div>
+          <div class="faq-a">Our free 30-minute consultation covers your business goals, project requirements, timeline, and budget. We'll recommend the best-fit plan and answer any questions you have before you commit to anything.</div>
+        </div>
+        <div class="faq-item reveal">
+          <div class="faq-q">How long does a website project take? <span class="faq-icon">+</span></div>
+          <div class="faq-a">Starter websites typically take 7–10 business days. Professional packages take 10–14 days, and Enterprise projects 14–21 days. Timeline depends on how quickly you provide content and feedback.</div>
+        </div>
+        <div class="faq-item reveal">
+          <div class="faq-q">Do you offer payment in instalments? <span class="faq-icon">+</span></div>
+          <div class="faq-a">Yes! We offer a 50% upfront / 50% on delivery payment structure for all projects. For Enterprise plans, we can arrange 3-instalment payment schedules. Contact us to discuss.</div>
+        </div>
+        <div class="faq-item reveal">
+          <div class="faq-q">What if I need changes after the project is delivered? <span class="faq-icon">+</span></div>
+          <div class="faq-a">All plans include a post-launch support window (1–6 months depending on plan) during which we fix any bugs or make minor adjustments. After that, you can purchase a maintenance add-on or hire us per-project.</div>
+        </div>
+        <div class="faq-item reveal">
+          <div class="faq-q">Will my website rank on Google? <span class="faq-icon">+</span></div>
+          <div class="faq-a">All our websites include foundational SEO (meta tags, structured data, sitemap, fast loading). For strong Google rankings, we recommend our ongoing SEO add-on. SEO is a long-term process and results depend on competition and content.</div>
+        </div>
+        <div class="faq-item reveal">
+          <div class="faq-q">Do you provide hosting and domain? <span class="faq-icon">+</span></div>
+          <div class="faq-a">We don't include hosting in our packages but we'll help you set everything up on your preferred platform (Hostinger, Bluehost, etc.). We recommend providers based on your budget and traffic expectations.</div>
+        </div>
+        <div class="faq-item reveal">
+          <div class="faq-q">Can I upgrade my plan later? <span class="faq-icon">+</span></div>
+          <div class="faq-a">Absolutely. Many clients start with the Starter plan and upgrade as their business grows. We'll credit a portion of your initial investment towards the upgrade.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- CTA (unchanged) -->
+<div class="cta-banner">
+  <div class="container">
+    <span class="section-label reveal">Get Started</span>
+    <h2 class="reveal">Not Sure Which Plan? <span class="grad">Let's Talk.</span></h2>
+    <p class="reveal">Book a free 30-min consultation — no obligation, no sales pressure. Just honest advice.</p>
+    <div class="cta-btns reveal">
+      <a href="contact.html" class="btn btn-primary">Book Free Consultation</a>
+      <a href="services.html" class="btn btn-outline">Explore Services</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER (unchanged) -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">iDesign4U</a>
+        <p>India's most affordable premium design studio.</p>
+        <div class="social-row mt-3">
+          <a href="#" class="soc">𝕏</a><a href="#" class="soc">in</a><a href="#" class="soc">ig</a><a href="#" class="soc">▶</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Services</h5>
+        <ul>
+          <li><a href="services.html#web-design">Web Design</a></li>
+          <li><a href="services.html#branding">Brand Identity</a></li>
+          <li><a href="services.html#uiux">UI/UX Design</a></li>
+          <li><a href="services.html#ecommerce">E-Commerce</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="portfolio.html">Portfolio</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@idesign4u.in">hello@idesign4u.in</a></li>
+          <li><a href="tel:+919876543210">+91 98765 43210</a></li>
+          <li><a href="about.html">Hyderabad, India</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 iDesign4U. All rights reserved.</span>
+      <span>Built with ❤️ in India</span>
+    </div>
+  </div>
+</footer>
+
+<button id="scrollTop" aria-label="Scroll to top">↑</button>
+<script src="script.js"></script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   CURRENCY BACKGROUND — JS INJECTED (like portfolio.js)
+   Spawns 36 currency symbols + 22 rising particles into
+   #pr-float-layer. Same logic as portfolio spawnIcons().
+   ═══════════════════════════════════════════════════════════ */
+(function spawnCurrencyBg() {
+
+  /* All major world currencies + crypto */
+  var symbols = [
+    /* INR / Rupee — weighted more heavily */
+    '₹', '₹', '₹', '₹',
+    /* Major fiat */
+    '$', '$', '€', '€', '£', '£', '¥', '¥',
+    /* Asian & emerging */
+    '₩', '₣', '฿', '₫', '₦', '₲', '₡', '₵',
+    /* Crypto */
+    '₿', '₿', 'Ξ', '◎',
+    /* More global */
+    '＄', '¢', '₴', '₺', '₽', 'kr', 'zł', 'Kč'
+  ];
+
+  /* Colour palette matching portfolio */
+  var colours = [
+    'rgba(108,71,255,CO)',   /* purple  */
+    'rgba(255,77,141,CO)',   /* pink    */
+    'rgba(0,229,160,CO)',    /* teal    */
+    'rgba(56,189,248,CO)',   /* blue    */
+    'rgba(245,166,35,CO)',   /* gold    */
+    'rgba(210,200,255,CO)',  /* lavender*/
+  ];
+
+  var container = document.getElementById('pr-float-layer');
+  if (!container) return;
+
+  var isMobile = window.innerWidth < 600;
+  var count = isMobile ? 20 : 36;
+
+  for (var i = 0; i < count; i++) {
+    var el = document.createElement('span');
+    el.className = 'pr-curr';
+
+    var sym     = symbols[Math.floor(Math.random() * symbols.length)];
+    var col     = colours[Math.floor(Math.random() * colours.length)];
+    /* Opacity 0.24 – 0.46 — clearly visible like portfolio */
+    var opacity = (0.24 + Math.random() * 0.22).toFixed(3);
+    /* Size 1.1 – 2.2rem */
+    var size    = (1.1 + Math.random() * 1.1).toFixed(2);
+    /* Slow, natural duration 10–22s */
+    var dur     = (10  + Math.random() * 12).toFixed(1);
+    var delay   = (-Math.random() * parseFloat(dur)).toFixed(2);
+    var left    = (Math.random() * 100).toFixed(2);
+    var top     = (Math.random() * 115 - 8).toFixed(2);
+
+    el.textContent = sym;
+    el.style.cssText = [
+      'left:'              + left    + '%;',
+      'top:'               + top     + '%;',
+      'font-size:'         + size    + 'rem;',
+      'color:'             + col.replace('CO', opacity) + ';',
+      '--co:'              + opacity + ';',
+      'animation-duration:'+ dur    + 's;',
+      'animation-delay:'   + delay  + 's;',
+    ].join('');
+
+    container.appendChild(el);
+  }
+
+  /* Rising dot particles */
+  var pcols = [
+    'rgba(108,71,255,.65)', 'rgba(255,77,141,.55)',
+    'rgba(0,229,160,.55)',  'rgba(56,189,248,.60)',
+    'rgba(245,166,35,.50)',
+  ];
+  var pcount = isMobile ? 12 : 26;
+  for (var j = 0; j < pcount; j++) {
+    var pel   = document.createElement('div');
+    pel.className = 'pr-particle';
+    var psz   = (3 + Math.random() * 6).toFixed(1);
+    var pdur  = (12 + Math.random() * 18).toFixed(1);
+    var pdel  = (-Math.random() * parseFloat(pdur)).toFixed(1);
+    var pleft = (Math.random() * 100).toFixed(2);
+    var drft  = ((Math.random() - .5) * 60).toFixed(0);
+    var pcol  = pcols[Math.floor(Math.random() * pcols.length)];
+    pel.style.cssText = [
+      'width:' + psz + 'px;height:' + psz + 'px;',
+      'left:' + pleft + '%;',
+      'color:' + pcol + ';',
+      'background:' + pcol + ';',
+      'animation-duration:' + pdur + 's;',
+      'animation-delay:'    + pdel + 's;',
+      '--drift:' + drft + 'px;',
+    ].join('');
+    container.appendChild(pel);
+  }
+})();
+
+/* Mouse parallax — same as portfolio initMouseEffects */
+(function initPrParallax() {
+  var layer = document.getElementById('pr-float-layer');
+  if (!layer) return;
+  var W = window.innerWidth, H = window.innerHeight;
+  var cx = W/2, cy = H/2, tx = W/2, ty = H/2;
+  document.addEventListener('mousemove', function(e) {
+    tx = e.clientX; ty = e.clientY;
+  }, { passive: true });
+  function tick() {
+    cx += (tx - cx) * .055;
+    cy += (ty - cy) * .055;
+    var dx = ((cx/W) - .5) * 18;
+    var dy = ((cy/H) - .5) * 12;
+    layer.style.transform = 'translate(' + (-dx).toFixed(2) + 'px,' + (-dy).toFixed(2) + 'px)';
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+/* ═══════════════════════════════════════════════════════════
+   PRICING TOGGLE
+   Switches between one-time plans (+ compare table)
+   and monthly retainer plans (+ setup fee note).
+   ═══════════════════════════════════════════════════════════ */
+var isYearly = false;
+
+function togglePricing() {
+  isYearly = !isYearly;
+
+  var toggle        = document.getElementById('pricingToggle');
+  var mLabel        = document.getElementById('monthlyLabel');
+  var yLabel        = document.getElementById('yearlyLabel');
+  var webPlans      = document.getElementById('webPlans');
+  var monthlyPlans  = document.getElementById('monthlyPlans');
+  var onetimeHead   = document.getElementById('onetimeHeading');
+  var monthlyHead   = document.getElementById('monthlyHeading');
+  var setupNote     = document.getElementById('setupFeeNote');
+  var compareSection= document.getElementById('compareSection');
+  var termsBanner   = document.getElementById('monthlyTermsBanner');
+
+  toggle.classList.toggle('yearly', isYearly);
+  mLabel.classList.toggle('active', !isYearly);
+  yLabel.classList.toggle('active',  isYearly);
+
+  if (isYearly) {
+    /* Monthly mode — show monthly content, hide one-time content */
+    webPlans.style.display        = 'none';
+    onetimeHead.style.display     = 'none';
+    compareSection.style.display  = 'none';
+    monthlyPlans.style.display    = 'grid';
+    monthlyPlans.classList.add('visible');
+    monthlyHead.style.display     = 'block';
+    setupNote.style.display       = 'block';
+    termsBanner.style.display     = 'block';
+  } else {
+    /* One-time mode — show one-time content, hide monthly content */
+    webPlans.style.display        = 'grid';
+    onetimeHead.style.display     = 'block';
+    compareSection.style.display  = 'block';
+    monthlyPlans.style.display    = 'none';
+    monthlyPlans.classList.remove('visible');
+    monthlyHead.style.display     = 'none';
+    setupNote.style.display       = 'none';
+    termsBanner.style.display     = 'none';
+  }
+}
+</script>
+</body>
+</html>
