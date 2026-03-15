@@ -157,6 +157,8 @@ loading="lazy">
           <p class="text-muted mb-4" style="font-size:.85rem">Fill out the form below and we'll get back to you with a detailed proposal.</p>
 
           <form action="https://formspree.io/f/mgonlqap" method="POST">
+         
+<input type="hidden" name="_next" value="https://idesign4u-site.vercel.app/contact.html?success=true">
             <input type="hidden" name="_subject" value="New message from iDesign4U website">
 <input type="hidden" name="_captcha" value="false">
 <input type="text" name="_gotcha" style="display:none">
@@ -321,6 +323,12 @@ loading="lazy">
       sel.value = map[plan] || '';
     }
   }
+</script>
+  <script>
+const urlParams = new URLSearchParams(window.location.search);
+if(urlParams.get('success')){
+  alert("✅ Thank you! Your message has been sent successfully. We will contact you soon.");
+}
 </script>
 </body>
 </html>
