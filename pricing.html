@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Transparent, affordable pricing for web design, branding, and digital marketing. No hidden fees."/>
+  <title>Pricing | I Design 4 U</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .pricing-toggle {
+      display: flex; align-items: center; gap: 1rem;
+      justify-content: center; margin: 2rem 0 3rem;
+    }
+    .toggle-label { font-size: .88rem; color: var(--muted); font-weight: 500; }
+    .toggle-label.active { color: var(--text); font-weight: 600; }
+    .toggle-switch {
+      width: 52px; height: 28px; border-radius: 100px;
+      background: var(--accent); position: relative; cursor: none;
+      transition: background .3s;
+    }
+    .toggle-switch::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #fff; transition: transform .3s;
+    }
+    .toggle-switch.yearly::after { transform: translateX(24px); }
+    .save-badge {
+      display: inline-block; padding: .2rem .6rem;
+      background: rgba(0,229,160,.12); border: 1px solid rgba(0,229,160,.25);
+      border-radius: 100px; font-size: .7rem; color: var(--accent3);
+      font-weight: 700;
+    }
+    .compare-table {
+      width: 100%; border-collapse: collapse;
+      margin-top: 3rem; background: var(--card);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .compare-table th {
+      background: var(--card2); padding: 1.2rem 1.5rem;
+      text-align: left; font-family: var(--font-head);
+      font-size: .82rem; font-weight: 700;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-table th:first-child { border-right: 1px solid var(--border); }
+    .compare-table th.featured-col { color: var(--accent); }
+    .compare-table td {
+      padding: 1rem 1.5rem; font-size: .84rem; color: var(--muted);
+      border-bottom: 1px solid rgba(108,71,255,.07);
+      vertical-align: middle;
+    }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table td:first-child { font-weight: 600; color: var(--text); border-right: 1px solid var(--border); }
+    .compare-table td .yes { color: var(--accent3); font-size: 1rem; }
+    .compare-table td .no { color: var(--accent2); font-size: 1rem; }
+    .compare-table tr:hover td { background: rgba(108,71,255,.03); }
+    .add-ons-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 1.2rem;
+    }
+    .addon-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.8rem;
+      transition: transform .3s, box-shadow .3s;
+    }
+    .addon-card:hover { transform: translateY(-4px); box-shadow: 0 14px 40px rgba(108,71,255,.13); }
+    .addon-price { font-family: var(--font-head); font-size: 1.5rem; font-weight: 800; color: var(--accent); margin-bottom: .3rem; }
+    .addon-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .4rem; }
+    .addon-card p { font-size: .82rem; color: var(--muted); line-height: 1.65; }
+    @media(max-width:768px) {
+      .add-ons-grid { grid-template-columns: 1fr; }
+      .compare-table { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="index.html" class="nav-logo">iDesign4U</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="portfolio.html">Portfolio</a></li>
+    <li><a href="pricing.html">Pricing</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="contact.html" class="nav-cta">Get a Quote</a></li>
+  </ul>
+  <button class="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+</nav>
+<div class="nav-mobile">
+  <a href="index.html">Home</a>
+  <a href="services.html">Services</a>
+  <a href="portfolio.html">Portfolio</a>
+  <a href="pricing.html">Pricing</a>
+  <a href="about.html">About</a>
+  <a href="contact.html">Contact</a>
+</div>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-bg"></div>
+  <div class="page-hero-grid"></div>
+  <div class="container page-hero-content">
+    <span class="section-label reveal">Transparent Pricing</span>
+    <h1 class="reveal">Plans for Every <span class="grad">Budget</span></h1>
+    <p class="reveal">No hidden fees. No surprises. Just honest, competitive pricing for world-class design.</p>
+  </div>
+</div>
+
+<!-- PRICING -->
+<section class="section">
+  <div class="container">
+
+    <!-- Toggle -->
+    <div class="pricing-toggle reveal">
+      <span class="toggle-label active" id="monthlyLabel">One-Time</span>
+      <div class="toggle-switch" id="pricingToggle" onclick="togglePricing()"></div>
+      <span class="toggle-label" id="yearlyLabel">Monthly Retainer <span class="save-badge">Save 20%</span></span>
+    </div>
+
+    <!-- Web Design Pricing -->
+    <div class="text-center mb-5">
+      <span class="section-label reveal">Website Packages</span>
+      <h2 class="reveal">Web Design <span class="grad">Plans</span></h2>
+    </div>
+
+    <div class="grid-3 mb-5" id="webPlans">
+      <div class="pcard reveal">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price"><sup>₹</sup><span class="price-val" data-onetime="9,999" data-monthly="3,499">9,999</span><sub id="period1"> one-time</sub></div>
+        <div class="plan-desc">Perfect for small businesses and freelancers getting online for the first time.</div>
+        <ul class="plan-features">
+          <li>5-Page Responsive Website</li>
+          <li>Mobile Optimised Design</li>
+          <li>Basic SEO Setup</li>
+          <li>Contact Form</li>
+          <li>Google Analytics Integration</li>
+          <li>1 Month Free Support</li>
+          <li class="crossed">CMS / Blog</li>
+          <li class="crossed">Custom Animations</li>
+        </ul>
+        <a href="contact.html?plan=starter" class="btn btn-outline w-full" style="display:flex;justify-content:center">Get Started →</a>
+      </div>
+      <div class="pcard featured reveal">
+        <div class="pcard-badge">★ Most Popular</div>
+        <div class="plan-name">Professional</div>
+        <div class="plan-price"><sup>₹</sup><span class="price-val" data-onetime="24,999" data-monthly="8,499">24,999</span><sub id="period2"> one-time</sub></div>
+        <div class="plan-desc">For growing businesses that want a premium, high-converting online presence.</div>
+        <ul class="plan-features">
+          <li>Up to 15 Pages</li>
+          <li>Custom UI/UX Design</li>
+          <li>WordPress / CMS</li>
+          <li>Advanced SEO Setup</li>
+          <li>Custom Animations</li>
+          <li>Blog / News Section</li>
+          <li>Speed Optimisation</li>
+          <li>3 Months Free Support</li>
+        </ul>
+        <a href="contact.html?plan=professional" class="btn btn-primary w-full" style="display:flex;justify-content:center">Get Started →</a>
+      </div>
+      <div class="pcard reveal">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-price"><sup>₹</sup><span class="price-val" data-onetime="49,999" data-monthly="16,499">49,999</span><sub id="period3"> one-time</sub></div>
+        <div class="plan-desc">Full-scale solutions for established brands, startups, and enterprise clients.</div>
+        <ul class="plan-features">
+          <li>Unlimited Pages</li>
+          <li>Custom Development</li>
+          <li>E-Commerce Integration</li>
+          <li>Brand Identity Pack</li>
+          <li>Priority Support (6 Months)</li>
+          <li>Monthly Analytics Reports</li>
+          <li>Performance Dashboard</li>
+          <li>Dedicated Project Manager</li>
+        </ul>
+        <a href="contact.html?plan=enterprise" class="btn btn-outline w-full" style="display:flex;justify-content:center">Get Started →</a>
+      </div>
+    </div>
+
+    <!-- Branding Pricing -->
+    <hr class="divider" style="margin:3rem 0"/>
+    <div class="text-center mb-5">
+      <span class="section-label reveal">Brand Identity</span>
+      <h2 class="reveal">Branding <span class="grad2">Packages</span></h2>
+    </div>
+    <div class="grid-3 mb-5">
+      <div class="pcard reveal">
+        <div class="plan-name">Logo Only</div>
+        <div class="plan-price"><sup>₹</sup>4,999<sub> one-time</sub></div>
+        <div class="plan-desc">A professional logo to establish your visual identity.</div>
+        <ul class="plan-features">
+          <li>3 Logo Concepts</li>
+          <li>2 Revision Rounds</li>
+          <li>All File Formats</li>
+          <li>Light & Dark Versions</li>
+          <li class="crossed">Brand Guidelines</li>
+          <li class="crossed">Stationery Design</li>
+        </ul>
+        <a href="contact.html?plan=logo" class="btn btn-outline w-full" style="display:flex;justify-content:center">Get Started →</a>
+      </div>
+      <div class="pcard featured reveal">
+        <div class="pcard-badge">★ Best Value</div>
+        <div class="plan-name">Brand Kit</div>
+        <div class="plan-price"><sup>₹</sup>14,999<sub> one-time</sub></div>
+        <div class="plan-desc">Complete brand identity that works across all touchpoints.</div>
+        <ul class="plan-features">
+          <li>5 Logo Concepts</li>
+          <li>Color Palette & Typography</li>
+          <li>Brand Guidelines PDF</li>
+          <li>Business Card Design</li>
+          <li>Letterhead & Envelope</li>
+          <li>Social Media Kit (8 Templates)</li>
+        </ul>
+        <a href="contact.html?plan=brand-kit" class="btn btn-primary w-full" style="display:flex;justify-content:center">Get Started →</a>
+      </div>
+      <div class="pcard reveal">
+        <div class="plan-name">Full Identity</div>
+        <div class="plan-price"><sup>₹</sup>29,999<sub> one-time</sub></div>
+        <div class="plan-desc">End-to-end brand ecosystem for serious companies.</div>
+        <ul class="plan-features">
+          <li>Everything in Brand Kit</li>
+          <li>Brand Strategy Session</li>
+          <li>Brand Voice & Messaging</li>
+          <li>Packaging Design</li>
+          <li>Pitch Deck Template</li>
+          <li>Email Signature</li>
+        </ul>
+        <a href="contact.html?plan=full-identity" class="btn btn-outline w-full" style="display:flex;justify-content:center">Get Started →</a>
+      </div>
+    </div>
+
+    <!-- Add-ons -->
+    <hr class="divider" style="margin:3rem 0"/>
+    <div class="text-center mb-5">
+      <span class="section-label reveal">Add-Ons</span>
+      <h2 class="reveal">Enhance Your <span class="grad">Package</span></h2>
+    </div>
+    <div class="add-ons-grid">
+      <div class="addon-card reveal">
+        <div class="addon-price">₹2,999</div>
+        <h4>Extra Revision Round</h4>
+        <p>Need more iterations? Add unlimited revisions for 30 days to any project.</p>
+      </div>
+      <div class="addon-card reveal">
+        <div class="addon-price">₹4,999/mo</div>
+        <h4>Ongoing SEO</h4>
+        <p>Monthly SEO management, keyword tracking, and content optimisation.</p>
+      </div>
+      <div class="addon-card reveal">
+        <div class="addon-price">₹6,999/mo</div>
+        <h4>Social Media Management</h4>
+        <p>15 posts/month, custom graphics, scheduling, and community management.</p>
+      </div>
+      <div class="addon-card reveal">
+        <div class="addon-price">₹3,499</div>
+        <h4>Speed Audit & Fix</h4>
+        <p>Full performance audit + implementation to achieve 90+ PageSpeed score.</p>
+      </div>
+      <div class="addon-card reveal">
+        <div class="addon-price">₹1,999/mo</div>
+        <h4>Website Maintenance</h4>
+        <p>Backups, security updates, plugin updates, and uptime monitoring.</p>
+      </div>
+      <div class="addon-card reveal">
+        <div class="addon-price">₹8,999</div>
+        <h4>Video Explainer</h4>
+        <p>60-second animated explainer video for your product or service.</p>
+      </div>
+    </div>
+
+    <!-- Compare Table -->
+    <hr class="divider" style="margin:3rem 0"/>
+    <div class="text-center mb-4">
+      <span class="section-label reveal">Feature Comparison</span>
+      <h2 class="reveal">Compare Web Design <span class="grad">Plans</span></h2>
+    </div>
+    <div class="reveal" style="overflow-x:auto">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th style="width:35%">Feature</th>
+            <th>Starter</th>
+            <th class="featured-col">Professional ★</th>
+            <th>Enterprise</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Number of Pages</td><td>Up to 5</td><td>Up to 15</td><td>Unlimited</td></tr>
+          <tr><td>Responsive Design</td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+          <tr><td>CMS / WordPress</td><td><span class="no">✗</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+          <tr><td>E-Commerce</td><td><span class="no">✗</span></td><td><span class="no">✗</span></td><td><span class="yes">✓</span></td></tr>
+          <tr><td>Custom Animations</td><td><span class="no">✗</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+          <tr><td>SEO Setup</td><td>Basic</td><td>Advanced</td><td>Full Technical</td></tr>
+          <tr><td>Speed Optimisation</td><td>Basic</td><td>Advanced</td><td>Premium</td></tr>
+          <tr><td>Post-Launch Support</td><td>1 Month</td><td>3 Months</td><td>6 Months</td></tr>
+          <tr><td>Brand Identity Pack</td><td><span class="no">✗</span></td><td><span class="no">✗</span></td><td><span class="yes">✓</span></td></tr>
+          <tr><td>Dedicated PM</td><td><span class="no">✗</span></td><td><span class="no">✗</span></td><td><span class="yes">✓</span></td></tr>
+          <tr><td>Delivery Time</td><td>7–10 days</td><td>10–14 days</td><td>14–21 days</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<div class="surface-section">
+  <section class="section">
+    <div class="container">
+      <div class="text-center mb-5">
+        <span class="section-label reveal">FAQ</span>
+        <h2 class="reveal">Frequently Asked <span class="grad">Questions</span></h2>
+      </div>
+      <div style="max-width:720px;margin:0 auto">
+        <div class="faq-item reveal">
+          <div class="faq-q">What is included in the free consultation? <span class="faq-icon">+</span></div>
+          <div class="faq-a">Our free 30-minute consultation covers your business goals, project requirements, timeline, and budget. We'll recommend the best-fit plan and answer any questions you have before you commit to anything.</div>
+        </div>
+        <div class="faq-item reveal">
+          <div class="faq-q">How long does a website project take? <span class="faq-icon">+</span></div>
+          <div class="faq-a">Starter websites typically take 7–10 business days. Professional packages take 10–14 days, and Enterprise projects 14–21 days. Timeline depends on how quickly you provide content and feedback.</div>
+        </div>
+        <div class="faq-item reveal">
+          <div class="faq-q">Do you offer payment in instalments? <span class="faq-icon">+</span></div>
+          <div class="faq-a">Yes! We offer a 50% upfront / 50% on delivery payment structure for all projects. For Enterprise plans, we can arrange 3-instalment payment schedules. Contact us to discuss.</div>
+        </div>
+        <div class="faq-item reveal">
+          <div class="faq-q">What if I need changes after the project is delivered? <span class="faq-icon">+</span></div>
+          <div class="faq-a">All plans include a post-launch support window (1–6 months depending on plan) during which we fix any bugs or make minor adjustments. After that, you can purchase a maintenance add-on or hire us per-project.</div>
+        </div>
+        <div class="faq-item reveal">
+          <div class="faq-q">Will my website rank on Google? <span class="faq-icon">+</span></div>
+          <div class="faq-a">All our websites include foundational SEO (meta tags, structured data, sitemap, fast loading). For strong Google rankings, we recommend our ongoing SEO add-on. SEO is a long-term process and results depend on competition and content.</div>
+        </div>
+        <div class="faq-item reveal">
+          <div class="faq-q">Do you provide hosting and domain? <span class="faq-icon">+</span></div>
+          <div class="faq-a">We don't include hosting in our packages but we'll help you set everything up on your preferred platform (Hostinger, Bluehost, etc.). We recommend providers based on your budget and traffic expectations.</div>
+        </div>
+        <div class="faq-item reveal">
+          <div class="faq-q">Can I upgrade my plan later? <span class="faq-icon">+</span></div>
+          <div class="faq-a">Absolutely. Many clients start with the Starter plan and upgrade as their business grows. We'll credit a portion of your initial investment towards the upgrade.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- CTA -->
+<div class="cta-banner">
+  <div class="container">
+    <span class="section-label reveal">Get Started</span>
+    <h2 class="reveal">Not Sure Which Plan? <span class="grad">Let's Talk.</span></h2>
+    <p class="reveal">Book a free 30-min consultation — no obligation, no sales pressure. Just honest advice.</p>
+    <div class="cta-btns reveal">
+      <a href="contact.html" class="btn btn-primary">Book Free Consultation</a>
+      <a href="services.html" class="btn btn-outline">Explore Services</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">iDesign4U</a>
+        <p>India's most affordable premium design studio.</p>
+        <div class="social-row mt-3">
+          <a href="#" class="soc">𝕏</a><a href="#" class="soc">in</a><a href="#" class="soc">ig</a><a href="#" class="soc">▶</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Services</h5>
+        <ul>
+          <li><a href="services.html#web-design">Web Design</a></li>
+          <li><a href="services.html#branding">Brand Identity</a></li>
+          <li><a href="services.html#uiux">UI/UX Design</a></li>
+          <li><a href="services.html#ecommerce">E-Commerce</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="portfolio.html">Portfolio</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@idesign4u.in">hello@idesign4u.in</a></li>
+          <li><a href="tel:+919876543210">+91 98765 43210</a></li>
+          <li><a href="about.html">Hyderabad, India</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 iDesign4U. All rights reserved.</span>
+      <span>Built with ❤️ in India</span>
+    </div>
+  </div>
+</footer>
+
+<button id="scrollTop" aria-label="Scroll to top">↑</button>
+<script src="js/script.js"></script>
+<script>
+  let isYearly = false;
+  function togglePricing() {
+    isYearly = !isYearly;
+    const toggle = document.getElementById('pricingToggle');
+    const mLabel = document.getElementById('monthlyLabel');
+    const yLabel = document.getElementById('yearlyLabel');
+    toggle.classList.toggle('yearly', isYearly);
+    mLabel.classList.toggle('active', !isYearly);
+    yLabel.classList.toggle('active', isYearly);
+    document.querySelectorAll('.price-val').forEach(el => {
+      el.textContent = isYearly ? el.dataset.monthly : el.dataset.onetime;
+    });
+    const period = isYearly ? '/mo' : ' one-time';
+    for (let i = 1; i <= 3; i++) {
+      const p = document.getElementById('period' + i);
+      if (p) p.textContent = period;
+    }
+  }
+</script>
+</body>
+</html>

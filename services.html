@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Explore iDesign4U's full range of services — web design, branding, UI/UX, SEO, e-commerce, and digital marketing."/>
+  <title>Services | I Design 4 U</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .service-block {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+      padding: 5rem 0; border-bottom: 1px solid var(--border);
+    }
+    .service-block:last-child { border-bottom: none; }
+    .service-block.reverse { direction: rtl; }
+    .service-block.reverse > * { direction: ltr; }
+    .service-visual {
+      height: 340px; border-radius: var(--radius);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 6rem;
+      position: relative; overflow: hidden;
+    }
+    .service-visual::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(108,71,255,.18), transparent 70%);
+    }
+    .service-text h3 { font-size: 1.8rem; margin-bottom: 1rem; }
+    .service-text p { font-size: .92rem; color: var(--muted); line-height: 1.8; margin-bottom: 1.5rem; }
+    .service-features {
+      list-style: none; display: grid; grid-template-columns: 1fr 1fr;
+      gap: .5rem; margin-bottom: 2rem;
+    }
+    .service-features li { font-size: .83rem; color: var(--muted); display: flex; gap: .5rem; align-items: flex-start; }
+    .service-features li::before { content: '✓'; color: var(--accent3); font-weight: 700; flex-shrink: 0; }
+    .tools-row { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    .tool-tag {
+      padding: .3rem .75rem; border-radius: 100px;
+      background: rgba(108,71,255,.1); border: 1px solid rgba(108,71,255,.2);
+      font-size: .72rem; color: var(--accent); font-weight: 600;
+    }
+    .why-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem;
+    }
+    .why-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.8rem; text-align: center;
+      transition: transform .3s, box-shadow .3s;
+    }
+    .why-card:hover { transform: translateY(-5px); box-shadow: 0 14px 40px rgba(108,71,255,.14); }
+    .why-icon { font-size: 2rem; margin-bottom: .9rem; }
+    .why-card h4 { font-family: var(--font-head); font-size: .95rem; font-weight: 700; margin-bottom: .4rem; }
+    .why-card p { font-size: .81rem; color: var(--muted); line-height: 1.6; }
+    @media(max-width:768px) {
+      .service-block { grid-template-columns: 1fr; gap: 2rem; }
+      .service-block.reverse { direction: ltr; }
+      .service-features { grid-template-columns: 1fr; }
+      .why-grid { grid-template-columns: repeat(2,1fr); }
+    }
+    @media(max-width:480px) { .why-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="index.html" class="nav-logo">iDesign4U</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="portfolio.html">Portfolio</a></li>
+    <li><a href="pricing.html">Pricing</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="contact.html" class="nav-cta">Get a Quote</a></li>
+  </ul>
+  <button class="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+</nav>
+<div class="nav-mobile">
+  <a href="index.html">Home</a>
+  <a href="services.html">Services</a>
+  <a href="portfolio.html">Portfolio</a>
+  <a href="pricing.html">Pricing</a>
+  <a href="about.html">About</a>
+  <a href="contact.html">Contact</a>
+</div>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-bg"></div>
+  <div class="page-hero-grid"></div>
+  <div class="container page-hero-content">
+    <span class="section-label reveal">Our Services</span>
+    <h1 class="reveal">Everything You Need to<br/><span class="grad">Dominate Online</span></h1>
+    <p class="reveal">End-to-end digital services crafted for businesses that want to stand out, attract more customers, and grow sustainably.</p>
+  </div>
+</div>
+
+<!-- WHY US -->
+<section class="section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-label reveal">Why Choose Us</span>
+      <h2 class="reveal">The <span class="grad">iDesign4U</span> Difference</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why-card reveal">
+        <div class="why-icon">⚡</div>
+        <h4>Fast Turnaround</h4>
+        <p>Most projects delivered in 7–14 days without sacrificing quality.</p>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-icon">💰</div>
+        <h4>Affordable Pricing</h4>
+        <p>World-class design at prices that make sense for Indian businesses.</p>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-icon">🏆</div>
+        <h4>Expert Team</h4>
+        <p>Senior designers and developers with 8+ years of industry experience.</p>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-icon">🤝</div>
+        <h4>Dedicated Support</h4>
+        <p>Personal project manager and post-launch support included in every plan.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICE BLOCKS -->
+<section class="section" style="padding-top:0">
+  <div class="container">
+
+    <!-- Web Design -->
+    <div class="service-block" id="web-design">
+      <div class="service-visual reveal-left" style="background:linear-gradient(135deg,#0f0f2e,#1a1a4e)">🎨</div>
+      <div class="service-text reveal-right">
+        <span class="section-label">Service 01</span>
+        <h3>Web Design &<br/><span class="grad">Development</span></h3>
+        <p>We create stunning, high-performance websites that don't just look great — they work hard to convert visitors into customers. Every pixel is intentional, every interaction smooth.</p>
+        <ul class="service-features">
+          <li>Responsive across all devices</li>
+          <li>Fast loading (Core Web Vitals)</li>
+          <li>Custom CMS integration</li>
+          <li>Landing pages & microsites</li>
+          <li>WordPress / custom builds</li>
+          <li>Ongoing maintenance</li>
+        </ul>
+        <div class="tools-row">
+          <span class="tool-tag">Figma</span>
+          <span class="tool-tag">WordPress</span>
+          <span class="tool-tag">React</span>
+          <span class="tool-tag">HTML/CSS</span>
+          <span class="tool-tag">Webflow</span>
+        </div>
+        <a href="contact.html" class="btn btn-primary">Get Started →</a>
+      </div>
+    </div>
+
+    <!-- Branding -->
+    <div class="service-block reverse" id="branding">
+      <div class="service-visual reveal-right" style="background:linear-gradient(135deg,#2d1b4e,#4a1942)">💡</div>
+      <div class="service-text reveal-left">
+        <span class="section-label">Service 02</span>
+        <h3>Brand Identity &<br/><span class="grad2">Logo Design</span></h3>
+        <p>A powerful brand is more than a logo. We craft complete visual identities that communicate your values, attract your ideal customers, and build lasting trust.</p>
+        <ul class="service-features">
+          <li>Logo design (3 concepts)</li>
+          <li>Color palette & typography</li>
+          <li>Brand guidelines document</li>
+          <li>Business card & letterhead</li>
+          <li>Social media kit</li>
+          <li>Brand story development</li>
+        </ul>
+        <div class="tools-row">
+          <span class="tool-tag">Illustrator</span>
+          <span class="tool-tag">Figma</span>
+          <span class="tool-tag">Photoshop</span>
+          <span class="tool-tag">InDesign</span>
+        </div>
+        <a href="contact.html" class="btn btn-primary">Get Started →</a>
+      </div>
+    </div>
+
+    <!-- UI/UX -->
+    <div class="service-block" id="uiux">
+      <div class="service-visual reveal-left" style="background:linear-gradient(135deg,#003d1f,#006644)">📱</div>
+      <div class="service-text reveal-right">
+        <span class="section-label">Service 03</span>
+        <h3>UI/UX Design &<br/><span class="grad">Prototyping</span></h3>
+        <p>Great products are built on great experiences. We design intuitive interfaces backed by research, tested with users, and built to delight from the first click.</p>
+        <ul class="service-features">
+          <li>User research & personas</li>
+          <li>Wireframes & user flows</li>
+          <li>High-fidelity mockups</li>
+          <li>Interactive prototypes</li>
+          <li>Usability testing</li>
+          <li>Design system creation</li>
+        </ul>
+        <div class="tools-row">
+          <span class="tool-tag">Figma</span>
+          <span class="tool-tag">Principle</span>
+          <span class="tool-tag">Maze</span>
+          <span class="tool-tag">Framer</span>
+        </div>
+        <a href="contact.html" class="btn btn-primary">Get Started →</a>
+      </div>
+    </div>
+
+    <!-- E-Commerce -->
+    <div class="service-block reverse" id="ecommerce">
+      <div class="service-visual reveal-right" style="background:linear-gradient(135deg,#3d1a00,#7a3300)">🛒</div>
+      <div class="service-text reveal-left">
+        <span class="section-label">Service 04</span>
+        <h3>E-Commerce<br/><span class="grad2">Solutions</span></h3>
+        <p>We build online stores that sell. From product pages to checkout flows, every element is optimised for conversions, trust, and a frictionless buying experience.</p>
+        <ul class="service-features">
+          <li>WooCommerce / Shopify</li>
+          <li>Product page optimisation</li>
+          <li>Payment gateway setup</li>
+          <li>Mobile-first checkout</li>
+          <li>Inventory management</li>
+          <li>Performance optimisation</li>
+        </ul>
+        <div class="tools-row">
+          <span class="tool-tag">Shopify</span>
+          <span class="tool-tag">WooCommerce</span>
+          <span class="tool-tag">Razorpay</span>
+          <span class="tool-tag">Stripe</span>
+        </div>
+        <a href="contact.html" class="btn btn-primary">Get Started →</a>
+      </div>
+    </div>
+
+    <!-- SEO -->
+    <div class="service-block" id="seo">
+      <div class="service-visual reveal-left" style="background:linear-gradient(135deg,#002244,#004488)">📈</div>
+      <div class="service-text reveal-right">
+        <span class="section-label">Service 05</span>
+        <h3>SEO &<br/><span class="grad">Search Growth</span></h3>
+        <p>Climb to the top of Google and stay there. Our data-driven SEO approach combines technical excellence, compelling content, and quality link building.</p>
+        <ul class="service-features">
+          <li>Technical SEO audit</li>
+          <li>Keyword research</li>
+          <li>On-page optimisation</li>
+          <li>Content strategy</li>
+          <li>Backlink building</li>
+          <li>Monthly reporting</li>
+        </ul>
+        <div class="tools-row">
+          <span class="tool-tag">SEMrush</span>
+          <span class="tool-tag">Ahrefs</span>
+          <span class="tool-tag">GSC</span>
+          <span class="tool-tag">GA4</span>
+        </div>
+        <a href="contact.html" class="btn btn-primary">Get Started →</a>
+      </div>
+    </div>
+
+    <!-- Digital Marketing -->
+    <div class="service-block reverse" id="marketing">
+      <div class="service-visual reveal-right" style="background:linear-gradient(135deg,#3d001a,#7a0033)">🚀</div>
+      <div class="service-text reveal-left">
+        <span class="section-label">Service 06</span>
+        <h3>Digital Marketing &<br/><span class="grad2">Growth</span></h3>
+        <p>Turn browsers into buyers with targeted campaigns. We run paid ads, social media, email marketing, and analytics to deliver measurable ROI for your business.</p>
+        <ul class="service-features">
+          <li>Google Ads / PPC</li>
+          <li>Facebook & Instagram Ads</li>
+          <li>Social media management</li>
+          <li>Email marketing</li>
+          <li>Analytics & conversion</li>
+          <li>Weekly performance reports</li>
+        </ul>
+        <div class="tools-row">
+          <span class="tool-tag">Google Ads</span>
+          <span class="tool-tag">Meta Ads</span>
+          <span class="tool-tag">Mailchimp</span>
+          <span class="tool-tag">HubSpot</span>
+        </div>
+        <a href="contact.html" class="btn btn-primary">Get Started →</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-banner">
+  <div class="container">
+    <span class="section-label reveal">Ready?</span>
+    <h2 class="reveal">Not Sure Which Service <span class="grad">You Need?</span></h2>
+    <p class="reveal">Book a free 30-minute consultation. We'll assess your needs and recommend the perfect solution.</p>
+    <div class="cta-btns reveal">
+      <a href="contact.html" class="btn btn-primary">Book Free Consultation</a>
+      <a href="pricing.html" class="btn btn-outline">View Pricing</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">iDesign4U</a>
+        <p>India's most affordable premium design studio. We turn your vision into digital reality.</p>
+        <div class="social-row mt-3">
+          <a href="#" class="soc">𝕏</a>
+          <a href="#" class="soc">in</a>
+          <a href="#" class="soc">ig</a>
+          <a href="#" class="soc">▶</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Services</h5>
+        <ul>
+          <li><a href="services.html#web-design">Web Design</a></li>
+          <li><a href="services.html#branding">Brand Identity</a></li>
+          <li><a href="services.html#uiux">UI/UX Design</a></li>
+          <li><a href="services.html#ecommerce">E-Commerce</a></li>
+          <li><a href="services.html#seo">SEO</a></li>
+          <li><a href="services.html#marketing">Digital Marketing</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="portfolio.html">Portfolio</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@idesign4u.in">hello@idesign4u.in</a></li>
+          <li><a href="tel:+919876543210">+91 98765 43210</a></li>
+          <li><a href="about.html">Hyderabad, India</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 iDesign4U. All rights reserved.</span>
+      <span>Built with ❤️ in India</span>
+    </div>
+  </div>
+</footer>
+
+<button id="scrollTop" aria-label="Scroll to top">↑</button>
+<script src="js/script.js"></script>
+</body>
+</html>

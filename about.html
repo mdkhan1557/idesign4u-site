@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Learn about iDesign4U — our story, team, values, and why 200+ clients trust us for their digital needs."/>
+  <title>About Us | I Design 4 U</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .about-hero-layout {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+    }
+    .about-visual {
+      height: 420px; border-radius: var(--radius);
+      background: linear-gradient(135deg, #0d0d2e, #1a1a4e);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 7rem; position: relative; overflow: hidden;
+    }
+    .about-visual::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 60% 40%, rgba(108,71,255,.2), transparent 65%);
+    }
+    .about-text h2 { margin-bottom: 1.2rem; }
+    .about-text p { font-size: .92rem; color: var(--muted); line-height: 1.85; margin-bottom: 1rem; }
+    .story-stats {
+      display: grid; grid-template-columns: repeat(2,1fr); gap: 1rem; margin-top: 2rem;
+    }
+    .story-stat {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.2rem;
+    }
+    .milestone-timeline {
+      position: relative; padding-left: 2rem;
+    }
+    .milestone-timeline::before {
+      content: ''; position: absolute; left: .6rem; top: 0; bottom: 0;
+      width: 2px; background: linear-gradient(to bottom, var(--accent), var(--accent2));
+      border-radius: 2px;
+    }
+    .milestone {
+      position: relative; margin-bottom: 2.5rem;
+      padding-left: 1.5rem;
+    }
+    .milestone::before {
+      content: ''; position: absolute; left: -1.65rem; top: .3rem;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--accent); border: 2px solid var(--bg);
+      box-shadow: 0 0 0 3px rgba(108,71,255,.25);
+    }
+    .milestone-year {
+      font-family: var(--font-head); font-size: .78rem; font-weight: 700;
+      color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: .3rem;
+    }
+    .milestone h4 { font-size: 1rem; font-weight: 700; margin-bottom: .4rem; }
+    .milestone p { font-size: .84rem; color: var(--muted); line-height: 1.7; }
+    .awards-grid {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 1.2rem;
+    }
+    .award-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.8rem; text-align: center;
+      transition: transform .3s, box-shadow .3s;
+    }
+    .award-card:hover { transform: translateY(-4px); box-shadow: 0 14px 40px rgba(108,71,255,.14); }
+    .award-icon { font-size: 2.2rem; margin-bottom: .8rem; }
+    .award-card h4 { font-size: .88rem; font-weight: 700; margin-bottom: .3rem; }
+    .award-card p { font-size: .76rem; color: var(--muted); }
+    @media(max-width:768px) {
+      .about-hero-layout { grid-template-columns: 1fr; }
+      .about-visual { height: 240px; font-size: 4rem; }
+      .awards-grid { grid-template-columns: repeat(2,1fr); }
+    }
+    @media(max-width:480px) { .awards-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="index.html" class="nav-logo">iDesign4U</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="portfolio.html">Portfolio</a></li>
+    <li><a href="pricing.html">Pricing</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="contact.html" class="nav-cta">Get a Quote</a></li>
+  </ul>
+  <button class="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+</nav>
+<div class="nav-mobile">
+  <a href="index.html">Home</a>
+  <a href="services.html">Services</a>
+  <a href="portfolio.html">Portfolio</a>
+  <a href="pricing.html">Pricing</a>
+  <a href="about.html">About</a>
+  <a href="contact.html">Contact</a>
+</div>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-bg"></div>
+  <div class="page-hero-grid"></div>
+  <div class="container page-hero-content">
+    <span class="section-label reveal">Our Story</span>
+    <h1 class="reveal">Design Studio Built<br/>for <span class="grad">Indian Businesses</span></h1>
+    <p class="reveal">8 years ago, we started with a simple belief: every Indian business deserves world-class design without a world-class price tag.</p>
+  </div>
+</div>
+
+<!-- ABOUT STORY -->
+<section class="section">
+  <div class="container">
+    <div class="about-hero-layout">
+      <div class="about-visual reveal-left">🎨</div>
+      <div class="about-text reveal-right">
+        <span class="section-label">Who We Are</span>
+        <h2>More Than a Design <span class="grad">Agency</span></h2>
+        <p>iDesign4U was founded in Hyderabad in 2017 with a clear mission: to make high-quality digital design accessible to businesses of all sizes across India.</p>
+        <p>We're a team of passionate designers, developers, and strategists who believe that good design is a superpower — one that every business should have access to, regardless of budget.</p>
+        <p>From solopreneurs launching their first website to established enterprises rebranding, we've helped over 200 clients across 15+ industries achieve their digital goals.</p>
+        <div class="story-stats">
+          <div class="story-stat">
+            <div class="stat-num" data-count="500" data-suffix="+">500+</div>
+            <div class="stat-label">Projects Completed</div>
+          </div>
+          <div class="story-stat">
+            <div class="stat-num" data-count="200" data-suffix="+">200+</div>
+            <div class="stat-label">Happy Clients</div>
+          </div>
+          <div class="story-stat">
+            <div class="stat-num" data-count="15" data-suffix="+">15+</div>
+            <div class="stat-label">Industries Served</div>
+          </div>
+          <div class="story-stat">
+            <div class="stat-num" data-count="8" data-suffix=" yrs">8 yrs</div>
+            <div class="stat-label">In Business</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VALUES -->
+<div class="surface-section">
+  <section class="section">
+    <div class="container">
+      <div class="text-center mb-5">
+        <span class="section-label reveal">What We Believe</span>
+        <h2 class="reveal">Our Core <span class="grad">Values</span></h2>
+      </div>
+      <div class="about-values-grid">
+        <div class="value-card reveal">
+          <div class="value-icon">🎯</div>
+          <h4>Results First</h4>
+          <p>Every design decision is tied to a business outcome. Beautiful work that doesn't convert is incomplete work.</p>
+        </div>
+        <div class="value-card reveal">
+          <div class="value-icon">🤝</div>
+          <h4>Honest Partnership</h4>
+          <p>We tell you what you need to hear, not what you want to hear. No fluff, no over-selling.</p>
+        </div>
+        <div class="value-card reveal">
+          <div class="value-icon">⚡</div>
+          <h4>Speed Without Sacrifice</h4>
+          <p>Fast delivery and high quality aren't opposites. Our process delivers both, every time.</p>
+        </div>
+        <div class="value-card reveal">
+          <div class="value-icon">🌱</div>
+          <h4>Long-Term Thinking</h4>
+          <p>We build for growth. Our work is designed to scale with your business for years to come.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- TEAM -->
+<section class="section" id="team">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-label reveal">The People</span>
+      <h2 class="reveal">Meet the <span class="grad">Team</span></h2>
+      <p class="text-muted mt-2 reveal" style="max-width:480px;margin-left:auto;margin-right:auto;line-height:1.75">A small, mighty team of creatives and technologists who love what they do.</p>
+    </div>
+    <div class="team-grid">
+      <div class="team-card reveal">
+        <div class="team-avatar" style="background:rgba(108,71,255,.2);color:#6c47ff">AK</div>
+        <h4>Aakash Kumar</h4>
+        <span>Founder & Creative Director</span>
+        <p>10 years in design. Previously led UX at a Bengaluru fintech. Hyderabad born and bred.</p>
+      </div>
+      <div class="team-card reveal">
+        <div class="team-avatar" style="background:rgba(255,77,141,.2);color:#ff4d8d">PS</div>
+        <h4>Pooja Sharma</h4>
+        <span>Head of Development</span>
+        <p>Full-stack developer obsessed with performance. Contributor to 3 open-source projects.</p>
+      </div>
+      <div class="team-card reveal">
+        <div class="team-avatar" style="background:rgba(0,229,160,.2);color:#00e5a0">RN</div>
+        <h4>Ravi Naidu</h4>
+        <span>Brand Strategist</span>
+        <p>Former brand manager at a top FMCG company. Helps brands find their unique voice.</p>
+      </div>
+      <div class="team-card reveal">
+        <div class="team-avatar" style="background:rgba(245,166,35,.2);color:#f5a623">SV</div>
+        <h4>Sneha Varma</h4>
+        <span>UI/UX Lead</span>
+        <p>Certified Google UX Designer. Specialises in mobile-first design and usability research.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MILESTONES -->
+<div class="surface-section">
+  <section class="section">
+    <div class="container">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start">
+        <div>
+          <span class="section-label reveal">Our Journey</span>
+          <h2 class="reveal mb-5">Key <span class="grad">Milestones</span></h2>
+          <div class="milestone-timeline reveal">
+            <div class="milestone">
+              <div class="milestone-year">2017</div>
+              <h4>Founded in Hyderabad</h4>
+              <p>Started as a two-person freelance studio working with local businesses.</p>
+            </div>
+            <div class="milestone">
+              <div class="milestone-year">2019</div>
+              <h4>First 50 Clients</h4>
+              <p>Grew to a team of 6 and completed our 50th project — a milestone we celebrated big.</p>
+            </div>
+            <div class="milestone">
+              <div class="milestone-year">2021</div>
+              <h4>Launched Digital Marketing Division</h4>
+              <p>Expanded beyond design into SEO, paid ads, and social media management.</p>
+            </div>
+            <div class="milestone">
+              <div class="milestone-year">2023</div>
+              <h4>200+ Clients & ₹5Cr Revenue</h4>
+              <p>A full-service digital studio trusted by startups, enterprises, and everything in between.</p>
+            </div>
+            <div class="milestone">
+              <div class="milestone-year">2025</div>
+              <h4>Expanding Pan-India</h4>
+              <p>Now serving clients across 8 cities with a growing remote team of 12 specialists.</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <span class="section-label reveal">Recognition</span>
+          <h2 class="reveal mb-5">Awards &amp; <span class="grad2">Accolades</span></h2>
+          <div class="awards-grid">
+            <div class="award-card reveal">
+              <div class="award-icon">🏆</div>
+              <h4>Top Design Studio</h4>
+              <p>Clutch.co 2024</p>
+            </div>
+            <div class="award-card reveal">
+              <div class="award-icon">⭐</div>
+              <h4>5-Star Agency</h4>
+              <p>Google Reviews</p>
+            </div>
+            <div class="award-card reveal">
+              <div class="award-icon">🎖️</div>
+              <h4>Best SMB Agency</h4>
+              <p>India Design Awards</p>
+            </div>
+            <div class="award-card reveal">
+              <div class="award-icon">🌟</div>
+              <h4>Top 10 Agency</h4>
+              <p>DesignRush 2024</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- CTA -->
+<div class="cta-banner">
+  <div class="container">
+    <span class="section-label reveal">Join 200+ Happy Clients</span>
+    <h2 class="reveal">Ready to Work <span class="grad">Together?</span></h2>
+    <p class="reveal">Let's build something extraordinary. Reach out and let's start the conversation.</p>
+    <div class="cta-btns reveal">
+      <a href="contact.html" class="btn btn-primary">Get In Touch ✦</a>
+      <a href="portfolio.html" class="btn btn-outline">View Our Work</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">iDesign4U</a>
+        <p>India's most affordable premium design studio.</p>
+        <div class="social-row mt-3">
+          <a href="#" class="soc">𝕏</a><a href="#" class="soc">in</a><a href="#" class="soc">ig</a><a href="#" class="soc">▶</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Services</h5>
+        <ul>
+          <li><a href="services.html#web-design">Web Design</a></li>
+          <li><a href="services.html#branding">Brand Identity</a></li>
+          <li><a href="services.html#uiux">UI/UX Design</a></li>
+          <li><a href="services.html#ecommerce">E-Commerce</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="portfolio.html">Portfolio</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@idesign4u.in">hello@idesign4u.in</a></li>
+          <li><a href="tel:+919876543210">+91 98765 43210</a></li>
+          <li><a href="about.html">Hyderabad, India</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 iDesign4U. All rights reserved.</span>
+      <span>Built with ❤️ in India</span>
+    </div>
+  </div>
+</footer>
+
+<button id="scrollTop" aria-label="Scroll to top">↑</button>
+<script src="js/script.js"></script>
+</body>
+</html>
