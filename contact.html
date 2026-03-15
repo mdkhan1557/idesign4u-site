@@ -53,6 +53,51 @@
     .qlink h4 { font-family: var(--font-head); font-size: .95rem; font-weight: 700; margin-bottom: .3rem; }
     .qlink p { font-size: .8rem; color: var(--muted); }
     @media(max-width:768px) { .quick-links { grid-template-columns: 1fr; } }
+    .popup-overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.75);
+display:flex;
+align-items:center;
+justify-content:center;
+opacity:0;
+pointer-events:none;
+transition:.3s;
+z-index:9999;
+}
+
+.popup-overlay.active{
+opacity:1;
+pointer-events:auto;
+}
+
+.popup-box{
+background:linear-gradient(135deg,#111028,#1a163a);
+border:1px solid rgba(255,255,255,0.08);
+border-radius:20px;
+padding:40px;
+text-align:center;
+width:350px;
+box-shadow:0 0 40px rgba(108,71,255,0.4);
+}
+
+.popup-icon{
+font-size:40px;
+color:#6cff9c;
+margin-bottom:10px;
+}
+
+.popup-btn{
+background:linear-gradient(90deg,#7c4dff,#ff4db8);
+border:none;
+padding:10px 25px;
+border-radius:30px;
+color:white;
+cursor:pointer;
+}
   </style>
 </head>
 <body>
@@ -306,6 +351,14 @@ loading="lazy">
     </div>
   </div>
 </footer>
+  <div id="successPopup" class="popup-overlay">
+  <div class="popup-box">
+    <div class="popup-icon">✓</div>
+    <h3>Message Sent Successfully</h3>
+    <p>Thank you for contacting iDesign4U. We will contact you soon.</p>
+    <button onclick="closePopup()" class="popup-btn">OK</button>
+  </div>
+</div>
 
 <button id="scrollTop" aria-label="Scroll to top">↑</button>
 <script src="script.js"></script>
@@ -325,11 +378,7 @@ loading="lazy">
   }
 </script>
   <script>
-const urlParams = new URLSearchParams(window.location.search);
-if(urlParams.get('success')){
-  alert("✅ Thank you! Your message has been sent successfully. We will contact you soon.");
-}
-</script>
+
   <script>
 const form = document.getElementById("contactForm");
 
@@ -346,13 +395,18 @@ form.addEventListener("submit", async function(e){
     }
   });
 
-  if(response.ok){
-    alert("✅ Thank you! Your message has been sent successfully.");
-    form.reset();
-  } else {
+ if(response.ok){
+document.getElementById("successPopup").classList.add("active");
+form.reset();
+} else {
     alert("❌ Something went wrong. Please try again.");
   }
 });
+</script>
+  <script>
+function closePopup(){
+document.getElementById("successPopup").classList.remove("active");
+}
 </script>
 </body>
 </html>
