@@ -148,8 +148,7 @@ body.cursor-hover #cursor-ring { width: 54px; height: 54px; border-color: var(--
 .nav-mobile {
   display: none;
   position: fixed; top: var(--nav-h); left: 0; right: 0;
-  background: #0d0d1a; /* solid — no transparency, no bleed-through */
-  background: rgba(10,10,26,.98); /* slight transparency for modern feel */
+  background: rgba(10,10,26,.98);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid var(--border);
@@ -651,10 +650,7 @@ h3 { font-size: 1.2rem; font-weight: 700; }
 .faq-item.open .faq-a { max-height: 200px; padding: 0 1.5rem 1.2rem; }
 
 /* ── SECTION DIVIDER ── */
-.divider {
-  border: none; border-top: 1px solid var(--border);
-  margin: 0;
-}
+.divider { border: none; border-top: 1px solid var(--border); margin: 0; }
 
 /* ── CTA BANNER ── */
 .cta-banner {
@@ -674,7 +670,7 @@ h3 { font-size: 1.2rem; font-weight: 700; }
   padding: 5rem 0 2rem;
   border-top: 1px solid var(--border);
   position: relative; z-index: 1;
-  background: var(--bg); /* ensure solid background, no bleed-through */
+  background: var(--bg);
 }
 .footer-grid {
   display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
@@ -708,8 +704,7 @@ h3 { font-size: 1.2rem; font-weight: 700; }
 
 /* ── REVEAL ANIMATIONS ── */
 .reveal {
-  opacity: 0;
-  transform: translateY(36px);
+  opacity: 0; transform: translateY(36px);
   transition: opacity .7s ease, transform .7s ease;
 }
 .reveal.in { opacity: 1; transform: translateY(0); }
@@ -718,28 +713,61 @@ h3 { font-size: 1.2rem; font-weight: 700; }
 .reveal-right { opacity: 0; transform: translateX(36px); transition: opacity .7s ease, transform .7s ease; }
 .reveal-right.in { opacity: 1; transform: translateX(0); }
 
-/* ── MOBILE: disable reveal animation entirely on small screens
-   Prevents content being invisible if IntersectionObserver misfires ── */
 @media (max-width: 768px) {
-  .reveal,
-  .reveal-left,
-  .reveal-right {
-    opacity: 1 !important;
-    transform: none !important;
-    transition: none !important;
+  .reveal, .reveal-left, .reveal-right {
+    opacity: 1 !important; transform: none !important; transition: none !important;
   }
 }
 
-/* ── FLOATING BLOBS ── */
+/* ══════════════════════════════════════════════════════
+   FLOATING BLOBS
+   z-index: -1  so they're always BEHIND everything.
+   opacity drastically reduced so they never wash out text.
+   On mobile: hidden completely — they cause the blurring.
+══════════════════════════════════════════════════════ */
 .blob {
   position: fixed; border-radius: 50%;
   filter: blur(90px); pointer-events: none;
-  z-index: -1;  /* behind EVERYTHING — was 0 which caused bleed-through */
+  z-index: -1;
   animation: blobDrift 10s ease-in-out infinite alternate;
 }
-.blob1 { width: 520px; height: 520px; background: var(--accent); opacity: .07; top: -120px; left: -100px; }
-.blob2 { width: 420px; height: 420px; background: var(--accent2); opacity: .07; bottom: -80px; right: -80px; animation-delay: -5s; }
+.blob1 {
+  width: 380px; height: 380px;   /* was 520px */
+  background: var(--accent);
+  opacity: .04;                  /* was .07 */
+  top: -100px; left: -80px;
+}
+.blob2 {
+  width: 300px; height: 300px;   /* was 420px */
+  background: var(--accent2);
+  opacity: .04;                  /* was .07 */
+  bottom: -60px; right: -60px;
+  animation-delay: -5s;
+}
 @keyframes blobDrift { from{transform:translate(0,0)} to{transform:translate(28px,28px)} }
+
+/* ══════════════════════════════════════════════════════
+   PORTFOLIO BACKGROUND LAYERS (orbs, beams, icons)
+   These are injected by portfolio.js / script.js.
+   On desktop: keep them but reduce opacity.
+   On mobile (≤768px): hide EVERYTHING except the grid.
+   This is the main fix for the mobile blurring issue.
+══════════════════════════════════════════════════════ */
+
+/* Desktop: reduce orb opacity so they don't overwhelm text */
+.pf-orb {
+  opacity: .55 !important;  /* was implied 1 — halved */
+}
+
+/* Desktop: reduce floating icon opacity */
+.pf-float-icon {
+  --fi-o: 0.15 !important;   /* was 0.22–0.44, now max 0.15 */
+}
+
+/* Desktop: reduce beam intensity */
+.pf-beam {
+  --beam-peak: 0.06 !important;  /* was up to .14 */
+}
 
 /* ── SCROLL TO TOP ── */
 #scrollTop {
@@ -771,20 +799,12 @@ h3 { font-size: 1.2rem; font-weight: 700; }
 /* ── UTILITY ── */
 .text-center { text-align: center; }
 .text-muted { color: var(--muted); }
-.mt-1 { margin-top: .5rem; }
-.mt-2 { margin-top: 1rem; }
-.mt-3 { margin-top: 1.5rem; }
-.mt-4 { margin-top: 2rem; }
-.mt-5 { margin-top: 3rem; }
-.mb-2 { margin-bottom: 1rem; }
-.mb-3 { margin-bottom: 1.5rem; }
-.mb-4 { margin-bottom: 2rem; }
-.mb-5 { margin-bottom: 3rem; }
-.gap-sm { gap: .8rem; }
-.d-flex { display: flex; }
-.align-center { align-items: center; }
-.justify-between { justify-content: space-between; }
-.w-full { width: 100%; }
+.mt-1{margin-top:.5rem} .mt-2{margin-top:1rem} .mt-3{margin-top:1.5rem}
+.mt-4{margin-top:2rem}  .mt-5{margin-top:3rem}
+.mb-2{margin-bottom:1rem} .mb-3{margin-bottom:1.5rem}
+.mb-4{margin-bottom:2rem} .mb-5{margin-bottom:3rem}
+.gap-sm{gap:.8rem} .d-flex{display:flex} .align-center{align-items:center}
+.justify-between{justify-content:space-between} .w-full{width:100%}
 .surface-section { background: var(--surface); position: relative; z-index: 1; }
 
 /* ── RESPONSIVE ── */
@@ -800,33 +820,49 @@ h3 { font-size: 1.2rem; font-weight: 700; }
 
 /* ═══════════════════════════════════════════════════════
    TABLET / MOBILE — 768px
-   ═══════════════════════════════════════════════════════ */
+═══════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
 
-  /* ── NAV: full-width, tighter padding ── */
-  .nav {
-    padding: 0 1.2rem;
-    width: 100%;
-    left: 0;
-    right: 0;
-    box-sizing: border-box;
+  /* ── KILL all animated background layers on mobile ──
+     Orbs, beams, floating icons, mouse-light, and wave
+     blobs all hidden. They are the cause of the blurring.
+     The gradient bg-grid and page-hero-bg remain (they
+     are CSS-only and don't overlap content). */
+  #orb-layer,
+  #beam-layer,
+  #float-icons,
+  #mouse-light,
+  #sv-3d-canvas,
+  .sv-wave,
+  .sv-grid,
+  .sv-wave-1,
+  .sv-wave-2,
+  .sv-wave-3,
+  .bg-wave,
+  .bg-wave-1,
+  .bg-wave-2,
+  .bg-wave-3 {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
+
+  /* Also hide blobs on mobile */
+  .blob { display: none !important; }
+
+  /* ── NAV ── */
+  .nav { padding: 0 1.2rem; width: 100%; left: 0; right: 0; box-sizing: border-box; }
   .nav-links  { display: none; }
   .nav-toggle { display: flex; }
 
-  /* ── HIDE custom cursor on touch / small screens ── */
+  /* ── Cursor ── */
   #cursor, #cursor-ring { display: none !important; }
   body { cursor: auto; }
   a, button, [onclick], .nav-toggle, .pf-filter, .pf-btn,
   .btn, .toggle-switch, .ab-arrow, #scrollTop { cursor: pointer; }
 
-  /* ── CONTAINER: reduce side padding ── */
   .container { padding: 0 1.1rem; }
 
-  /* ── H1: the main fix — clamp that actually works on mobile ──
-     At 390px: clamp(1.85rem, 8vw, 3rem) → 8vw = 31.2px ≈ 1.95rem
-     At 320px: clamp(1.85rem, 8vw, 3rem) → 8vw = 25.6px → min 1.85rem kicks in = 29.6px
-     Both fit comfortably with word-break safety net */
   h1 {
     font-size: clamp(1.85rem, 8vw, 3rem) !important;
     line-height: 1.18 !important;
@@ -834,24 +870,18 @@ h3 { font-size: 1.2rem; font-weight: 700; }
     word-break: break-word;
     overflow-wrap: break-word;
   }
-
   h2 {
     font-size: clamp(1.5rem, 5.5vw, 2.4rem) !important;
     line-height: 1.2 !important;
     letter-spacing: -0.3px !important;
   }
 
-  /* ── PAGE HERO (inner pages): reduce top padding ── */
   .page-hero {
     padding-top:    calc(var(--nav-h) + 2rem) !important;
     padding-bottom: 2.5rem !important;
   }
-  .page-hero p {
-    font-size: .9rem !important;
-    padding: 0 .5rem;
-  }
+  .page-hero p { font-size: .9rem !important; padding: 0 .5rem; }
 
-  /* ── HOME HERO ── */
   .hero {
     padding-top:    calc(var(--nav-h) + 2rem) !important;
     padding-bottom: 3rem !important;
@@ -860,11 +890,9 @@ h3 { font-size: 1.2rem; font-weight: 700; }
   .hero p { font-size: .92rem; }
   .hero-stats { gap: 1.5rem; }
 
-  /* ── SECTION padding ── */
   section.section { padding: 3.5rem 0; }
   .section        { padding: 3.5rem 0; }
 
-  /* ── GRIDS ── */
   .grid-3, .grid-2 { grid-template-columns: 1fr; }
   .portfolio-grid  { grid-template-columns: 1fr; }
   .about-values-grid { grid-template-columns: 1fr 1fr; }
@@ -873,73 +901,47 @@ h3 { font-size: 1.2rem; font-weight: 700; }
   .form-row        { grid-template-columns: 1fr; }
   .modal-meta      { grid-template-columns: 1fr; }
 
-  /* ── CTA BANNER ── */
   .cta-banner h2 { font-size: clamp(1.55rem, 6vw, 2.4rem) !important; }
   .cta-btns      { flex-wrap: wrap; justify-content: center; gap: .8rem; }
   .btn           { padding: .7rem 1.4rem; font-size: .85rem; }
 
-  /* ── FOOTER ── */
   .footer { padding: 3rem 0 1.5rem; }
 }
 
 /* ═══════════════════════════════════════════════════════
    SMALL MOBILE — 480px
-   ═══════════════════════════════════════════════════════ */
+═══════════════════════════════════════════════════════ */
 @media (max-width: 480px) {
-
-  /* ── H1: tightest setting for narrow phones ── */
   h1 {
     font-size: clamp(1.65rem, 8.5vw, 2rem) !important;
     line-height: 1.16 !important;
     letter-spacing: -0.3px !important;
   }
-
-  h2 {
-    font-size: clamp(1.3rem, 6vw, 1.7rem) !important;
-  }
-
-  /* ── NAV logo: slightly smaller so it never wraps ── */
+  h2 { font-size: clamp(1.3rem, 6vw, 1.7rem) !important; }
   .nav-logo { font-size: 1.2rem !important; }
-
-  /* ── CONTAINER: even tighter ── */
   .container { padding: 0 .9rem; }
-
-  /* ── PAGE HERO ── */
   .page-hero {
     padding-top:    calc(var(--nav-h) + 1.4rem) !important;
     padding-bottom: 2rem !important;
   }
   .page-hero p   { font-size: .84rem !important; }
   .section-label { font-size: .65rem !important; letter-spacing: 2px !important; }
-
-  /* ── GRIDS ── */
   .about-values-grid, .team-grid { grid-template-columns: 1fr; }
   .hero-stats  { flex-direction: column; gap: 1.2rem; }
   .cta-btns    { flex-direction: column; align-items: center; }
-
-  /* ── STAT numbers ── */
   .stat-num    { font-size: 1.8rem; }
-
-  /* ── PRICING cards ── */
   .pcard       { padding: 1.6rem 1.2rem; }
   .plan-price  { font-size: 2.2rem !important; }
-
-  /* ── SECTION padding ── */
   section.section { padding: 2.5rem 0; }
   .section        { padding: 2.5rem 0; }
-
-  /* ── scrollTop button: smaller, tighter ── */
   #scrollTop { width: 36px; height: 36px; font-size: .8rem; bottom: 1.2rem; right: 1.2rem; }
 }
 
 /* ═══════════════════════════════════════════════════════
-   VERY SMALL — 360px (small Android phones)
-   ═══════════════════════════════════════════════════════ */
+   VERY SMALL — 360px
+═══════════════════════════════════════════════════════ */
 @media (max-width: 360px) {
-  h1 {
-    font-size: 1.55rem !important;
-    line-height: 1.15 !important;
-  }
+  h1 { font-size: 1.55rem !important; line-height: 1.15 !important; }
   h2 { font-size: 1.25rem !important; }
   .container { padding: 0 .75rem; }
   .nav { padding: 0 .9rem; }
