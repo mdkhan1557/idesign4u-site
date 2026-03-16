@@ -10,6 +10,163 @@
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css"/>
   <link rel="stylesheet" href="css/portfolio.css"/>
+  <style>
+    /* ══════════════════════════════════════════════════════════
+       LIVE IFRAME PREVIEW SYSTEM
+       Each .mk-stage now contains:
+         - .mk-iframe-wrap  : clipped container (same dimensions)
+         - iframe           : the actual live site, lazy-loaded
+         - .mk-iframe-overlay: dark tint + "scroll to preview" hint
+         - .mk-iframe-label : browser chrome bar at top
+       On hover: overlay fades, iframe becomes interactive
+       The existing laptop/phone mockup CSS drives the frame shape
+    ══════════════════════════════════════════════════════════ */
+
+    /* Browser chrome bar sits above the iframe */
+    .mk-chrome {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 26px; z-index: 4;
+      background: rgba(10,10,20,.95);
+      display: flex; align-items: center;
+      padding: 0 10px; gap: 6px;
+      border-bottom: 1px solid rgba(108,71,255,.2);
+      flex-shrink: 0;
+    }
+    .mk-chrome-dots { display:flex; gap:5px; }
+    .mk-chrome-dots span {
+      width:9px; height:9px; border-radius:50%; display:block;
+    }
+    .mk-chrome-dots span:nth-child(1){background:#ff5f57;}
+    .mk-chrome-dots span:nth-child(2){background:#febc2e;}
+    .mk-chrome-dots span:nth-child(3){background:#28c840;}
+    .mk-chrome-bar {
+      flex:1; height:14px;
+      background:rgba(108,71,255,.12);
+      border:1px solid rgba(108,71,255,.2);
+      border-radius:7px; margin:0 8px;
+      display:flex; align-items:center; padding:0 8px;
+    }
+    .mk-chrome-url {
+      font-size:9px; color:rgba(255,255,255,.45);
+      white-space:nowrap; overflow:hidden;
+      font-family:'DM Sans',sans-serif;
+    }
+
+    /* Full-stage iframe wrapper */
+    .mk-iframe-wrap {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+      border-radius: inherit;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* The iframe itself */
+    .mk-iframe-wrap iframe {
+      flex: 1;
+      width: 100%;
+      border: none;
+      /* Scale down so the full site is visible — 200% width/height then scale 0.5 */
+      transform-origin: top left;
+      transform: scale(0.5);
+      width: 200%;
+      height: 200%;
+      pointer-events: none;   /* OFF by default so card hover/click works */
+      transition: pointer-events 0s;
+      background: #fff;
+      /* Slow auto-scroll animation when not hovered */
+      animation: iframeAutoScroll 12s ease-in-out infinite alternate;
+    }
+    @keyframes iframeAutoScroll {
+      0%   { margin-top: 0; }
+      100% { margin-top: -50%; }
+    }
+
+    /* Overlay: dims the iframe and shows hint */
+    .mk-iframe-overlay {
+      position: absolute;
+      inset: 0; z-index: 3;
+      background: linear-gradient(
+        to bottom,
+        rgba(7,7,15,.0) 0%,
+        rgba(7,7,15,.65) 85%,
+        rgba(7,7,15,.85) 100%
+      );
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 14px;
+      transition: opacity .35s ease;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    /* "Scroll to preview" hint pill */
+    .mk-preview-hint {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(108,71,255,.22);
+      border: 1px solid rgba(108,71,255,.4);
+      border-radius: 100px;
+      padding: 5px 12px;
+      font-size: .68rem; font-weight: 600;
+      color: rgba(255,255,255,.85);
+      font-family: 'DM Sans',sans-serif;
+      letter-spacing: .3px;
+      backdrop-filter: blur(6px);
+      transition: opacity .3s;
+    }
+    .mk-preview-hint::before {
+      content: '';
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #00e5a0;
+      box-shadow: 0 0 6px #00e5a0;
+      flex-shrink: 0;
+    }
+
+    /* On card hover: overlay fades, iframe gets pointer events + stops auto-scroll */
+    .pf-card:hover .mk-iframe-overlay {
+      opacity: 0;
+    }
+    .pf-card:hover .mk-iframe-wrap iframe {
+      pointer-events: all;
+      animation-play-state: paused;
+    }
+
+    /* Loading skeleton shown before iframe loads */
+    .mk-iframe-loading {
+      position: absolute;
+      inset: 0; z-index: 2;
+      background: linear-gradient(135deg,#0d0d22,#1a1a3a);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 8px;
+      transition: opacity .5s;
+    }
+    .mk-iframe-loading.loaded { opacity: 0; pointer-events: none; }
+    .mk-loading-spinner {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2px solid rgba(108,71,255,.2);
+      border-top-color: var(--accent, #6c47ff);
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .mk-loading-text {
+      font-size: .65rem; color: rgba(255,255,255,.35);
+      font-family:'DM Sans',sans-serif;
+    }
+
+    /* Responsive — reduce iframe scale on smaller screens */
+    @media(max-width:768px) {
+      .mk-iframe-wrap iframe {
+        transform: scale(0.38);
+        width: 263%;
+        height: 263%;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -91,22 +248,29 @@
       <!-- 1 — RESTAURANT / CAFE -->
       <div class="pf-card" data-cat="restaurant"
            data-modal='{"title":"Restaurant / Cafe Website","category":"Restaurant / Cafe Websites","client":"Restaurant Client","year":"2024","tech":"WordPress · Elementor · Figma","desc":"A rich, appetite-whetting website with online menu, table booking, food gallery, Google Maps location, and a WhatsApp order button — increasing reservations by 180%.","emoji":"🍽️","tags":["Online Menu","Table Booking","Food Gallery","Google Maps","WhatsApp Order"]}'>
-        <div class="mk-stage">
-          <div class="mk-bg" style="background:linear-gradient(135deg,#2d0a00,#5a1e00)"></div>
-          <div class="mk-overlay"></div>
-          <div class="mk-laptop">
-            <div class="mkl-screen"><div class="mkl-cam"></div>
-              <div class="mkl-vp"><div class="mkl-scroll">
-                <div style="background:#1a0800">
-                  <div style="height:10px;background:#3d0e00;display:flex;align-items:center;padding:0 4px"><div style="width:18px;height:3px;background:#f5a623;border-radius:2px"></div><div style="flex:1"></div><div style="width:14px;height:3px;background:rgba(245,166,35,.4);border-radius:2px"></div></div>
-                  <div style="background:linear-gradient(135deg,#4a1a00,#2d0a00);padding:6px 4px;text-align:center"><div style="font-size:14px;margin-bottom:3px">🍛</div><div style="height:4px;background:rgba(245,166,35,.7);border-radius:2px;width:55%;margin:0 auto 2px"></div><div style="height:2px;background:rgba(245,166,35,.3);border-radius:2px;width:38%;margin:0 auto 3px"></div><div style="height:6px;background:#f5a623;border-radius:2px;width:30%;margin:0 auto"></div></div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;padding:3px"><div style="aspect-ratio:4/3;background:linear-gradient(135deg,#8b2500,#6b1a00);border-radius:2px"></div><div style="aspect-ratio:4/3;background:linear-gradient(135deg,#7a3000,#5a1e00);border-radius:2px"></div><div style="aspect-ratio:4/3;background:linear-gradient(135deg,#9b3500,#7a2800);border-radius:2px"></div></div>
-                  <div style="padding:3px 4px"><div style="height:2px;background:rgba(245,166,35,.2);border-radius:1px;width:70%;margin-bottom:2px"></div><div style="display:flex;gap:2px"><div style="height:8px;flex:1;background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.12);border-radius:1px"></div><div style="height:8px;flex:1;background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.12);border-radius:1px"></div></div></div>
-                </div>
-              </div></div>
-            </div><div class="mkl-base"></div><div class="mkl-foot"></div>
+<div class="mk-stage">
+          <div class="mk-chrome">
+            <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
+            <div class="mk-chrome-bar"><span class="mk-chrome-url">id4u-dine.preview.emergentagent.com</span></div>
           </div>
-          <div class="mk-phone"><div class="mkp-shell" style="border-color:#5a1e00"><div class="mkp-notch"></div><div class="mkp-vp"><div class="mkp-scroll"><div style="background:#1a0800;padding:2px"><div style="height:5px;background:#3d0e00;margin-bottom:2px"></div><div style="font-size:10px;text-align:center;margin-bottom:2px">🍛</div><div style="height:3px;background:rgba(245,166,35,.5);border-radius:1px;width:55%;margin:0 auto 2px"></div><div style="height:5px;background:#f5a623;border-radius:1px;width:35%;margin:0 auto"></div></div></div></div><div class="mkp-bar"></div></div></div>
+          <div class="mk-overlay"></div>
+          <div class="mk-iframe-wrap">
+            <iframe
+              src="https://id4u-dine.preview.emergentagent.com/"
+              loading="lazy"
+              sandbox="allow-scripts allow-same-origin allow-forms"
+              scrolling="yes"
+              title="Live preview of id4u-dine.preview.emergentagent.com"
+              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
+            ></iframe>
+            <div class="mk-iframe-loading">
+              <div class="mk-loading-spinner"></div>
+              <div class="mk-loading-text">Loading preview…</div>
+            </div>
+            <div class="mk-iframe-overlay">
+              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
+            </div>
+          </div>
         </div>
         <div class="pf-body">
           <span class="pf-tag pf-tag--restaurant">🍽️ Restaurant / Cafe</span>
@@ -122,21 +286,29 @@
       <!-- 2 — REAL ESTATE -->
       <div class="pf-card" data-cat="realestate"
            data-modal='{"title":"Real Estate / Property Dealer Website","category":"Real Estate / Property Dealers","client":"Property Dealer","year":"2024","tech":"WordPress · ACF · Figma","desc":"High-converting property portal with property listing pages, search filters, image galleries, and agent contact forms — generating 1,200+ monthly leads.","emoji":"🏠","tags":["Property Listing Pages","Search Filters","Image Galleries","Agent Contact Forms","Real Estate"]}'>
-        <div class="mk-stage">
-          <div class="mk-bg" style="background:linear-gradient(135deg,#001a35,#003366)"></div>
-          <div class="mk-overlay"></div>
-          <div class="mk-laptop">
-            <div class="mkl-screen"><div class="mkl-cam"></div>
-              <div class="mkl-vp"><div class="mkl-scroll">
-                <div style="background:#f0f6ff">
-                  <div style="height:10px;background:#003366;display:flex;align-items:center;padding:0 4px"><div style="width:16px;height:3px;background:#fff;border-radius:2px;opacity:.9"></div><div style="flex:1"></div><div style="width:14px;height:3px;background:rgba(255,255,255,.5);border-radius:2px"></div></div>
-                  <div style="background:linear-gradient(90deg,#003366,#004d99);padding:5px 4px"><div style="height:4px;background:rgba(255,255,255,.75);border-radius:2px;width:60%;margin-bottom:2px"></div><div style="display:flex;gap:2px;margin-bottom:2px"><div style="flex:1;height:6px;background:rgba(255,255,255,.2);border-radius:1px;border:1px solid rgba(255,255,255,.3)"></div><div style="flex:1;height:6px;background:rgba(255,255,255,.2);border-radius:1px;border:1px solid rgba(255,255,255,.3)"></div><div style="width:20px;height:6px;background:#f5a623;border-radius:1px"></div></div></div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:3px"><div style="background:#fff;border:1px solid rgba(0,51,102,.1);border-radius:2px;padding:2px"><div style="height:18px;background:linear-gradient(135deg,#d0e4f8,#b8d4f0);border-radius:1px;margin-bottom:2px"></div><div style="height:2px;background:rgba(0,51,102,.2);border-radius:1px;width:70%"></div></div><div style="background:#fff;border:1px solid rgba(0,51,102,.1);border-radius:2px;padding:2px"><div style="height:18px;background:linear-gradient(135deg,#c8ddf5,#b0c8ec);border-radius:1px;margin-bottom:2px"></div><div style="height:2px;background:rgba(0,51,102,.2);border-radius:1px;width:70%"></div></div><div style="background:#fff;border:1px solid rgba(0,51,102,.1);border-radius:2px;padding:2px"><div style="height:18px;background:linear-gradient(135deg,#d8ecff,#c0daff);border-radius:1px;margin-bottom:2px"></div><div style="height:2px;background:rgba(0,51,102,.2);border-radius:1px;width:70%"></div></div><div style="background:#fff;border:1px solid rgba(0,51,102,.1);border-radius:2px;padding:2px"><div style="height:18px;background:linear-gradient(135deg,#c0d8f2,#a8c4e8);border-radius:1px;margin-bottom:2px"></div><div style="height:2px;background:rgba(0,51,102,.2);border-radius:1px;width:70%"></div></div></div>
-                </div>
-              </div></div>
-            </div><div class="mkl-base"></div><div class="mkl-foot"></div>
+<div class="mk-stage">
+          <div class="mk-chrome">
+            <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
+            <div class="mk-chrome-bar"><span class="mk-chrome-url">approved-plots-hyd.preview.emergentagent.com</span></div>
           </div>
-          <div class="mk-phone"><div class="mkp-shell" style="border-color:#001a35"><div class="mkp-notch"></div><div class="mkp-vp"><div class="mkp-scroll"><div style="background:#f0f6ff;padding:2px"><div style="height:5px;background:#003366;margin-bottom:2px"></div><div style="height:12px;background:linear-gradient(135deg,#d0e4f8,#b8d4f0);border-radius:1px;margin-bottom:2px"></div><div style="height:2px;background:rgba(0,51,102,.2);border-radius:1px;width:70%;margin-bottom:1px"></div><div style="height:4px;background:#f5a623;border-radius:1px;width:40%;margin:0 auto"></div></div></div></div><div class="mkp-bar"></div></div></div>
+          <div class="mk-overlay"></div>
+          <div class="mk-iframe-wrap">
+            <iframe
+              src="https://approved-plots-hyd.preview.emergentagent.com/"
+              loading="lazy"
+              sandbox="allow-scripts allow-same-origin allow-forms"
+              scrolling="yes"
+              title="Live preview of approved-plots-hyd.preview.emergentagent.com"
+              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
+            ></iframe>
+            <div class="mk-iframe-loading">
+              <div class="mk-loading-spinner"></div>
+              <div class="mk-loading-text">Loading preview…</div>
+            </div>
+            <div class="mk-iframe-overlay">
+              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
+            </div>
+          </div>
         </div>
         <div class="pf-body">
           <span class="pf-tag pf-tag--realestate">🏠 Real Estate / Property</span>
@@ -152,21 +324,29 @@
       <!-- 3 — MEDICAL / CLINIC -->
       <div class="pf-card" data-cat="medical"
            data-modal='{"title":"Medical / Clinic Website","category":"Medical / Clinic / Hospital","client":"Healthcare Clinic","year":"2024","tech":"WordPress · Elementor · Figma","desc":"Trust-building website with doctor profiles, appointment booking, services section, and patient testimonials — increasing online appointments by 210%.","emoji":"🏥","tags":["Doctor Profile","Appointment Booking","Services Section","Patient Testimonials","Healthcare"]}'>
-        <div class="mk-stage">
-          <div class="mk-bg" style="background:linear-gradient(135deg,#1a0a0a,#2a1020)"></div>
-          <div class="mk-overlay"></div>
-          <div class="mk-laptop">
-            <div class="mkl-screen"><div class="mkl-cam"></div>
-              <div class="mkl-vp"><div class="mkl-scroll">
-                <div style="background:#fff">
-                  <div style="height:10px;background:#c94b4b;display:flex;align-items:center;padding:0 4px"><div style="width:16px;height:3px;background:#fff;border-radius:2px;opacity:.9"></div><div style="flex:1"></div><div style="width:14px;height:4px;background:rgba(255,255,255,.7);border-radius:2px"></div></div>
-                  <div style="background:linear-gradient(90deg,#fef5f5,#fff5f8);padding:5px 4px;display:flex;gap:3px;align-items:center"><div style="flex:1"><div style="height:4px;background:#c94b4b;border-radius:2px;width:60%;margin-bottom:2px"></div><div style="height:2px;background:rgba(0,0,0,.15);border-radius:2px;width:80%;margin-bottom:3px"></div><div style="height:4px;background:#c94b4b;border-radius:2px;width:30%"></div></div><div style="width:26px;height:26px;background:linear-gradient(135deg,#c94b4b,#4b134f);border-radius:50%"></div></div>
-                  <div style="display:flex;gap:2px;padding:2px 4px"><div style="flex:1;height:14px;background:#fef5f5;border:1px solid rgba(201,75,75,.12);border-radius:2px"></div><div style="flex:1;height:14px;background:#fef5f5;border:1px solid rgba(201,75,75,.12);border-radius:2px"></div><div style="flex:1;height:14px;background:#fef5f5;border:1px solid rgba(201,75,75,.12);border-radius:2px"></div></div>
-                </div>
-              </div></div>
-            </div><div class="mkl-base"></div><div class="mkl-foot"></div>
+<div class="mk-stage">
+          <div class="mk-chrome">
+            <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
+            <div class="mk-chrome-bar"><span class="mk-chrome-url">smile-tech-hub-1.preview.emergentagent.com</span></div>
           </div>
-          <div class="mk-phone"><div class="mkp-shell" style="border-color:#2a1020"><div class="mkp-notch"></div><div class="mkp-vp"><div class="mkp-scroll"><div style="background:#fff;padding:2px"><div style="height:5px;background:#c94b4b;margin-bottom:2px"></div><div style="height:2px;background:rgba(0,0,0,.12);border-radius:1px;width:70%;margin-bottom:1px"></div><div style="height:2px;background:rgba(0,0,0,.06);border-radius:1px;width:50%;margin-bottom:3px"></div><div style="height:5px;background:#c94b4b;border-radius:1px;width:45%;margin:0 auto"></div></div></div></div><div class="mkp-bar"></div></div></div>
+          <div class="mk-overlay"></div>
+          <div class="mk-iframe-wrap">
+            <iframe
+              src="https://smile-tech-hub-1.preview.emergentagent.com/"
+              loading="lazy"
+              sandbox="allow-scripts allow-same-origin allow-forms"
+              scrolling="yes"
+              title="Live preview of smile-tech-hub-1.preview.emergentagent.com"
+              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
+            ></iframe>
+            <div class="mk-iframe-loading">
+              <div class="mk-loading-spinner"></div>
+              <div class="mk-loading-text">Loading preview…</div>
+            </div>
+            <div class="mk-iframe-overlay">
+              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
+            </div>
+          </div>
         </div>
         <div class="pf-body">
           <span class="pf-tag pf-tag--medical">🏥 Medical / Clinic / Hospital</span>
@@ -182,20 +362,29 @@
       <!-- 4 — EDUCATION / COACHING -->
       <div class="pf-card" data-cat="education"
            data-modal='{"title":"Education / Coaching Institute Website","category":"Education / Coaching Institutes","client":"Coaching Institute","year":"2024","tech":"WordPress · Figma · PHP","desc":"A comprehensive coaching institute website with course details, admission forms, faculty profiles, and student testimonials — improving admissions by 3x.","emoji":"🎓","tags":["Course Details","Admission Forms","Faculty Profiles","Student Testimonials","Education"]}'>
-        <div class="mk-stage">
-          <div class="mk-bg" style="background:linear-gradient(135deg,#0d061f,#1a0840)"></div>
-          <div class="mk-overlay"></div>
-          <div class="mk-laptop">
-            <div class="mkl-screen"><div class="mkl-cam"></div>
-              <div class="mkl-vp"><div class="mkl-scroll">
-                <div style="background:#0d0620;display:flex;min-height:80px">
-                  <div style="width:22%;background:#130a2e;padding:3px 2px;flex-shrink:0"><div style="height:4px;background:linear-gradient(90deg,#6c47ff,#ff4d8d);border-radius:2px;margin-bottom:3px"></div><div style="height:2px;background:rgba(108,71,255,.25);border-radius:1px;margin-bottom:1px"></div><div style="height:2px;background:rgba(108,71,255,.15);border-radius:1px;margin-bottom:1px"></div><div style="height:2px;background:rgba(108,71,255,.1);border-radius:1px"></div></div>
-                  <div style="flex:1;padding:3px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-bottom:2px"><div style="height:10px;background:rgba(108,71,255,.12);border:1px solid rgba(108,71,255,.15);border-radius:1px"></div><div style="height:10px;background:rgba(255,77,141,.08);border:1px solid rgba(255,77,141,.12);border-radius:1px"></div></div><div style="height:14px;background:rgba(108,71,255,.07);border:1px solid rgba(108,71,255,.1);border-radius:1px"></div></div>
-                </div>
-              </div></div>
-            </div><div class="mkl-base"></div><div class="mkl-foot"></div>
+<div class="mk-stage">
+          <div class="mk-chrome">
+            <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
+            <div class="mk-chrome-bar"><span class="mk-chrome-url">school-five-steel.vercel.app</span></div>
           </div>
-          <div class="mk-phone"><div class="mkp-shell" style="border-color:#1a0840"><div class="mkp-notch"></div><div class="mkp-vp"><div class="mkp-scroll"><div style="background:#0d0620;padding:2px"><div style="height:4px;background:linear-gradient(90deg,#6c47ff,#ff4d8d);margin-bottom:2px"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-bottom:2px"><div style="height:10px;background:rgba(108,71,255,.15);border-radius:1px"></div><div style="height:10px;background:rgba(255,77,141,.1);border-radius:1px"></div></div><div style="height:10px;background:rgba(108,71,255,.08);border-radius:1px"></div></div></div></div><div class="mkp-bar"></div></div></div>
+          <div class="mk-overlay"></div>
+          <div class="mk-iframe-wrap">
+            <iframe
+              src="https://school-five-steel.vercel.app/"
+              loading="lazy"
+              sandbox="allow-scripts allow-same-origin allow-forms"
+              scrolling="yes"
+              title="Live preview of school-five-steel.vercel.app"
+              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
+            ></iframe>
+            <div class="mk-iframe-loading">
+              <div class="mk-loading-spinner"></div>
+              <div class="mk-loading-text">Loading preview…</div>
+            </div>
+            <div class="mk-iframe-overlay">
+              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
+            </div>
+          </div>
         </div>
         <div class="pf-body">
           <span class="pf-tag pf-tag--education">🎓 Education / Coaching</span>
@@ -211,23 +400,29 @@
       <!-- 5 — E-COMMERCE (StyleHub) -->
       <div class="pf-card" data-cat="ecommerce"
            data-modal='{"title":"E-commerce / Online Store","category":"E-commerce / Online Store","client":"Fashion Brand","year":"2024","tech":"Shopify · React · Figma","desc":"A full-featured e-commerce store with product catalog, cart and checkout, payment gateway, and product filters — resulting in 3.2x higher conversion rate.","emoji":"🛍️","tags":["Product Catalog","Cart & Checkout","Payment Gateway","Product Filters","E-Commerce"]}'>
-        <div class="mk-stage">
-          <div class="mk-bg" style="background:linear-gradient(135deg,#1a1a2e,#281440)"></div>
-          <div class="mk-overlay"></div>
-          <div class="mk-laptop">
-            <div class="mkl-screen"><div class="mkl-cam"></div>
-              <div class="mkl-vp"><div class="mkl-scroll">
-                <div style="background:#f5f0eb;height:100%">
-                  <div style="height:10px;background:#1a1a2e;display:flex;align-items:center;padding:0 4px;gap:2px"><span style="width:5px;height:5px;border-radius:50%;background:#f5a623;display:block"></span><div style="flex:1;height:2px;background:rgba(255,255,255,.2);border-radius:2px"></div></div>
-                  <div style="background:#e8ddd0;padding:5px 4px;display:flex;gap:3px;align-items:center"><div style="flex:1"><div style="height:5px;background:#1a1a2e;border-radius:2px;width:65%;margin-bottom:2px"></div><div style="height:3px;background:rgba(26,26,46,.4);border-radius:2px;width:45%"></div></div><div style="width:22px;height:16px;background:#1a1a2e;border-radius:2px"></div></div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;padding:3px"><div style="aspect-ratio:3/4;background:linear-gradient(180deg,#d4b896,#c4a07a);border-radius:2px"></div><div style="aspect-ratio:3/4;background:linear-gradient(180deg,#8b6e52,#7a5a3a);border-radius:2px"></div><div style="aspect-ratio:3/4;background:linear-gradient(180deg,#e8c9a0,#d4a870);border-radius:2px"></div></div>
-                  <div style="padding:3px 4px"><div style="height:2px;background:rgba(26,26,46,.2);border-radius:2px;width:75%;margin-bottom:2px"></div><div style="height:2px;background:rgba(26,26,46,.1);border-radius:2px;width:50%"></div></div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:2px 4px"><div style="aspect-ratio:1;background:linear-gradient(135deg,#c4a07a,#a0806a);border-radius:2px"></div><div style="aspect-ratio:1;background:linear-gradient(135deg,#7a5a4a,#5a3a2a);border-radius:2px"></div></div>
-                </div>
-              </div></div>
-            </div><div class="mkl-base"></div><div class="mkl-foot"></div>
+<div class="mk-stage">
+          <div class="mk-chrome">
+            <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
+            <div class="mk-chrome-bar"><span class="mk-chrome-url">style-vault-112.preview.emergentagent.com</span></div>
           </div>
-          <div class="mk-phone"><div class="mkp-shell"><div class="mkp-notch"></div><div class="mkp-vp"><div class="mkp-scroll"><div style="background:#f5f0eb;padding:2px"><div style="height:5px;background:#1a1a2e;margin-bottom:2px"></div><div style="aspect-ratio:3/4;background:linear-gradient(180deg,#d4b896,#c4a07a);border-radius:1px;margin-bottom:2px"></div><div style="height:2px;background:rgba(26,26,46,.2);border-radius:1px;width:80%;margin-bottom:1px"></div><div style="height:5px;background:#1a1a2e;border-radius:1px;width:55%;margin:0 auto"></div></div></div></div><div class="mkp-bar"></div></div></div>
+          <div class="mk-overlay"></div>
+          <div class="mk-iframe-wrap">
+            <iframe
+              src="https://style-vault-112.preview.emergentagent.com/"
+              loading="lazy"
+              sandbox="allow-scripts allow-same-origin allow-forms"
+              scrolling="yes"
+              title="Live preview of style-vault-112.preview.emergentagent.com"
+              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
+            ></iframe>
+            <div class="mk-iframe-loading">
+              <div class="mk-loading-spinner"></div>
+              <div class="mk-loading-text">Loading preview…</div>
+            </div>
+            <div class="mk-iframe-overlay">
+              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
+            </div>
+          </div>
         </div>
         <div class="pf-body">
           <span class="pf-tag pf-tag--ecommerce">🛒 E-commerce / Online Store</span>
@@ -243,21 +438,29 @@
       <!-- 6 — TRAVEL AGENCY -->
       <div class="pf-card" data-cat="travel"
            data-modal='{"title":"Travel Agency / Tour Packages Website","category":"Travel Agency / Tour Packages","client":"Travel Agency","year":"2024","tech":"WordPress · Elementor · Figma","desc":"An attractive travel website with tour packages listing, booking forms, photo galleries, and reviews — growing bookings by 4x within 3 months of launch.","emoji":"✈️","tags":["Tour Packages Listing","Booking Forms","Photo Galleries","Reviews","Travel"]}'>
-        <div class="mk-stage">
-          <div class="mk-bg" style="background:linear-gradient(135deg,#003d3d,#006666)"></div>
-          <div class="mk-overlay"></div>
-          <div class="mk-laptop">
-            <div class="mkl-screen"><div class="mkl-cam"></div>
-              <div class="mkl-vp"><div class="mkl-scroll">
-                <div style="background:#e8fffc">
-                  <div style="height:10px;background:#006666;display:flex;align-items:center;padding:0 4px"><div style="width:16px;height:3px;background:#fff;border-radius:2px;opacity:.9"></div><div style="flex:1"></div><div style="width:14px;height:3px;background:rgba(255,255,255,.5);border-radius:2px"></div></div>
-                  <div style="background:linear-gradient(135deg,#006666,#004d4d);padding:6px 4px;text-align:center"><div style="font-size:14px;margin-bottom:3px">✈️</div><div style="height:4px;background:rgba(255,255,255,.8);border-radius:2px;width:60%;margin:0 auto 2px"></div><div style="height:2px;background:rgba(255,255,255,.4);border-radius:2px;width:40%;margin:0 auto 3px"></div><div style="height:6px;background:#00e5a0;border-radius:2px;width:28%;margin:0 auto"></div></div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:3px"><div style="height:22px;background:linear-gradient(135deg,#b8f0e8,#90e0d4);border-radius:2px"></div><div style="height:22px;background:linear-gradient(135deg,#a0e8dc,#78d8cc);border-radius:2px"></div><div style="height:22px;background:linear-gradient(135deg,#c0f4ec,#98e4d8);border-radius:2px"></div><div style="height:22px;background:linear-gradient(135deg,#a8ecdf,#80dccf);border-radius:2px"></div></div>
-                </div>
-              </div></div>
-            </div><div class="mkl-base"></div><div class="mkl-foot"></div>
+<div class="mk-stage">
+          <div class="mk-chrome">
+            <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
+            <div class="mk-chrome-bar"><span class="mk-chrome-url">travel-flow-5.preview.emergentagent.com</span></div>
           </div>
-          <div class="mk-phone"><div class="mkp-shell" style="border-color:#006666"><div class="mkp-notch"></div><div class="mkp-vp"><div class="mkp-scroll"><div style="background:#e8fffc;padding:2px"><div style="height:5px;background:#006666;margin-bottom:2px"></div><div style="font-size:10px;text-align:center;margin-bottom:2px">✈️</div><div style="height:12px;background:linear-gradient(135deg,#b8f0e8,#90e0d4);border-radius:1px;margin-bottom:2px"></div><div style="height:5px;background:#00e5a0;border-radius:1px;width:40%;margin:0 auto"></div></div></div></div><div class="mkp-bar"></div></div></div>
+          <div class="mk-overlay"></div>
+          <div class="mk-iframe-wrap">
+            <iframe
+              src="https://travel-flow-5.preview.emergentagent.com/"
+              loading="lazy"
+              sandbox="allow-scripts allow-same-origin allow-forms"
+              scrolling="yes"
+              title="Live preview of travel-flow-5.preview.emergentagent.com"
+              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
+            ></iframe>
+            <div class="mk-iframe-loading">
+              <div class="mk-loading-spinner"></div>
+              <div class="mk-loading-text">Loading preview…</div>
+            </div>
+            <div class="mk-iframe-overlay">
+              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
+            </div>
+          </div>
         </div>
         <div class="pf-body">
           <span class="pf-tag pf-tag--travel">✈️ Travel Agency</span>
@@ -273,21 +476,29 @@
       <!-- 7 — CONSTRUCTION / INTERIOR DESIGN -->
       <div class="pf-card" data-cat="construction"
            data-modal='{"title":"Construction / Interior Design Website","category":"Construction / Interior Design","client":"Construction Company","year":"2023","tech":"HTML · CSS · JS · GSAP","desc":"Portfolio-heavy website with project showcase, before/after images, service pages, and contact forms — driving 180% more inbound enquiries.","emoji":"🏗️","tags":["Project Showcase","Before / After Images","Service Pages","Contact Forms","Construction"]}'>
-        <div class="mk-stage">
-          <div class="mk-bg" style="background:linear-gradient(135deg,#111,#222)"></div>
-          <div class="mk-overlay"></div>
-          <div class="mk-laptop">
-            <div class="mkl-screen"><div class="mkl-cam"></div>
-              <div class="mkl-vp"><div class="mkl-scroll">
-                <div style="background:#111">
-                  <div style="height:10px;background:#1a1a1a;display:flex;align-items:center;padding:0 4px"><div style="width:16px;height:3px;background:#f5a623;border-radius:2px"></div><div style="flex:1"></div><div style="width:14px;height:3px;background:rgba(255,255,255,.25);border-radius:2px"></div></div>
-                  <div style="background:linear-gradient(135deg,#222,#333);padding:6px 4px"><div style="height:4px;background:#f5a623;border-radius:2px;width:55%;margin-bottom:2px"></div><div style="height:3px;background:rgba(255,255,255,.3);border-radius:2px;width:70%;margin-bottom:3px"></div><div style="height:4px;background:#f5a623;border-radius:2px;width:25%"></div></div>
-                  <div style="padding:3px 4px;display:flex;gap:2px"><div style="flex:1;height:12px;background:#1a1a1a;border:1px solid rgba(245,166,35,.18);border-radius:2px"></div><div style="flex:1;height:12px;background:#1a1a1a;border:1px solid rgba(245,166,35,.18);border-radius:2px"></div><div style="flex:1;height:12px;background:#1a1a1a;border:1px solid rgba(245,166,35,.18);border-radius:2px"></div></div>
-                </div>
-              </div></div>
-            </div><div class="mkl-base"></div><div class="mkl-foot"></div>
+<div class="mk-stage">
+          <div class="mk-chrome">
+            <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
+            <div class="mk-chrome-bar"><span class="mk-chrome-url">luxury-interior-hub-3.preview.emergentagent.com</span></div>
           </div>
-          <div class="mk-phone"><div class="mkp-shell" style="border-color:#333"><div class="mkp-notch"></div><div class="mkp-vp"><div class="mkp-scroll"><div style="background:#111;padding:2px"><div style="height:5px;background:#1a1a1a;margin-bottom:2px"></div><div style="height:3px;background:#f5a623;border-radius:1px;width:55%;margin-bottom:1px"></div><div style="height:2px;background:rgba(255,255,255,.12);border-radius:1px;width:75%;margin-bottom:3px"></div><div style="height:4px;background:#f5a623;border-radius:1px;width:32%;margin:0 auto"></div></div></div></div><div class="mkp-bar"></div></div></div>
+          <div class="mk-overlay"></div>
+          <div class="mk-iframe-wrap">
+            <iframe
+              src="https://luxury-interior-hub-3.preview.emergentagent.com/"
+              loading="lazy"
+              sandbox="allow-scripts allow-same-origin allow-forms"
+              scrolling="yes"
+              title="Live preview of luxury-interior-hub-3.preview.emergentagent.com"
+              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
+            ></iframe>
+            <div class="mk-iframe-loading">
+              <div class="mk-loading-spinner"></div>
+              <div class="mk-loading-text">Loading preview…</div>
+            </div>
+            <div class="mk-iframe-overlay">
+              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
+            </div>
+          </div>
         </div>
         <div class="pf-body">
           <span class="pf-tag pf-tag--construction">🏗️ Construction / Interior Design</span>
@@ -303,21 +514,29 @@
       <!-- 8 — BEAUTY SALON / SPA -->
       <div class="pf-card" data-cat="salon"
            data-modal='{"title":"Beauty Salon / Spa Website","category":"Beauty Salon / Spa / Makeup Artist","client":"Beauty Salon","year":"2024","tech":"WordPress · Elementor · Figma","desc":"An elegant salon and spa website with services list, pricing table, appointment booking, and curated gallery — increasing online bookings by 220%.","emoji":"💅","tags":["Services List","Pricing","Appointment Booking","Gallery","Salon & Spa"]}'>
-        <div class="mk-stage">
-          <div class="mk-bg" style="background:linear-gradient(135deg,#0d1f0d,#1a3020)"></div>
-          <div class="mk-overlay"></div>
-          <div class="mk-laptop">
-            <div class="mkl-screen"><div class="mkl-cam"></div>
-              <div class="mkl-vp"><div class="mkl-scroll">
-                <div style="background:#f5f9f2">
-                  <div style="height:10px;background:#2d5c2d;display:flex;align-items:center;padding:0 4px"><div style="width:16px;height:3px;background:rgba(255,255,255,.8);border-radius:2px"></div><div style="flex:1"></div><div style="width:14px;height:3px;background:rgba(255,255,255,.5);border-radius:2px"></div></div>
-                  <div style="background:linear-gradient(180deg,#e8f5e2,#f5f9f2);padding:5px 4px;text-align:center"><div style="width:22px;height:22px;background:linear-gradient(135deg,#2d5c2d,#71b280);border-radius:50%;margin:0 auto 2px"></div><div style="height:3px;background:rgba(45,92,45,.5);border-radius:2px;width:50%;margin:0 auto 2px"></div><div style="height:2px;background:rgba(45,92,45,.25);border-radius:2px;width:35%;margin:0 auto"></div></div>
-                  <div style="padding:3px 4px;display:flex;gap:2px"><div style="flex:1;height:18px;background:#e8f5e2;border:1px solid rgba(45,92,45,.12);border-radius:2px"></div><div style="flex:1;height:18px;background:#e8f5e2;border:1px solid rgba(45,92,45,.12);border-radius:2px"></div><div style="flex:1;height:18px;background:#e8f5e2;border:1px solid rgba(45,92,45,.12);border-radius:2px"></div></div>
-                </div>
-              </div></div>
-            </div><div class="mkl-base"></div><div class="mkl-foot"></div>
+<div class="mk-stage">
+          <div class="mk-chrome">
+            <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
+            <div class="mk-chrome-bar"><span class="mk-chrome-url">salon-experience-17.preview.emergentagent.com</span></div>
           </div>
-          <div class="mk-phone"><div class="mkp-shell" style="border-color:#1a3020"><div class="mkp-notch"></div><div class="mkp-vp"><div class="mkp-scroll"><div style="background:#f5f9f2;padding:2px"><div style="height:5px;background:#2d5c2d;margin-bottom:2px"></div><div style="width:14px;height:14px;background:linear-gradient(135deg,#2d5c2d,#71b280);border-radius:50%;margin:0 auto 2px"></div><div style="height:2px;background:rgba(45,92,45,.3);border-radius:1px;width:60%;margin:0 auto 3px"></div><div style="height:4px;background:rgba(45,92,45,.12);border-radius:1px"></div></div></div></div><div class="mkp-bar"></div></div></div>
+          <div class="mk-overlay"></div>
+          <div class="mk-iframe-wrap">
+            <iframe
+              src="https://salon-experience-17.preview.emergentagent.com/"
+              loading="lazy"
+              sandbox="allow-scripts allow-same-origin allow-forms"
+              scrolling="yes"
+              title="Live preview of salon-experience-17.preview.emergentagent.com"
+              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
+            ></iframe>
+            <div class="mk-iframe-loading">
+              <div class="mk-loading-spinner"></div>
+              <div class="mk-loading-text">Loading preview…</div>
+            </div>
+            <div class="mk-iframe-overlay">
+              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
+            </div>
+          </div>
         </div>
         <div class="pf-body">
           <span class="pf-tag pf-tag--salon">💅 Beauty Salon / Spa</span>
@@ -333,21 +552,29 @@
       <!-- 9 — EVENT ORGANISATION -->
       <div class="pf-card" data-cat="event"
            data-modal='{"title":"Event Organisation Website","category":"Event Organisation","client":"Event Management Company","year":"2024","tech":"WordPress · Elementor · Figma","desc":"A vibrant event management website with event portfolio, service packages, client testimonials, and inquiry form — enquiries doubled in the first 6 weeks after launch.","emoji":"🎉","tags":["Event Portfolio","Service Packages","Client Testimonials","Inquiry Form","Event Management"]}'>
-        <div class="mk-stage">
-          <div class="mk-bg" style="background:linear-gradient(135deg,#1f0800,#3a1400)"></div>
-          <div class="mk-overlay"></div>
-          <div class="mk-laptop">
-            <div class="mkl-screen"><div class="mkl-cam"></div>
-              <div class="mkl-vp"><div class="mkl-scroll">
-                <div style="background:#1a0800">
-                  <div style="height:10px;background:#2d0e00;display:flex;align-items:center;padding:0 4px"><div style="width:16px;height:3px;background:#f5a623;border-radius:2px"></div><div style="flex:1"></div><div style="width:14px;height:3px;background:rgba(245,166,35,.4);border-radius:2px"></div></div>
-                  <div style="background:linear-gradient(135deg,#3d1a00,#2d0e00);padding:6px 4px;text-align:center"><div style="font-size:14px;margin-bottom:3px">🎉</div><div style="height:3px;background:rgba(245,166,35,.6);border-radius:2px;width:50%;margin:0 auto 2px"></div><div style="height:2px;background:rgba(245,166,35,.3);border-radius:2px;width:32%;margin:0 auto"></div></div>
-                  <div style="padding:3px 4px"><div style="height:12px;background:rgba(245,166,35,.07);border:1px solid rgba(245,166,35,.1);border-radius:2px;margin-bottom:2px"></div><div style="display:flex;gap:2px"><div style="flex:1;height:8px;background:rgba(245,166,35,.05);border:1px solid rgba(245,166,35,.08);border-radius:2px"></div><div style="flex:1;height:8px;background:rgba(245,166,35,.05);border:1px solid rgba(245,166,35,.08);border-radius:2px"></div></div></div>
-                </div>
-              </div></div>
-            </div><div class="mkl-base"></div><div class="mkl-foot"></div>
+<div class="mk-stage">
+          <div class="mk-chrome">
+            <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
+            <div class="mk-chrome-bar"><span class="mk-chrome-url">luxury-celebrations-2.preview.emergentagent.com</span></div>
           </div>
-          <div class="mk-phone"><div class="mkp-shell" style="border-color:#3a1400"><div class="mkp-notch"></div><div class="mkp-vp"><div class="mkp-scroll"><div style="background:#1a0800;padding:2px"><div style="height:5px;background:#2d0e00;margin-bottom:2px"></div><div style="font-size:10px;text-align:center;margin-bottom:2px">🎉</div><div style="height:2px;background:rgba(245,166,35,.4);border-radius:1px;width:55%;margin:0 auto 3px"></div><div style="height:4px;background:rgba(245,166,35,.1);border-radius:1px"></div></div></div></div><div class="mkp-bar"></div></div></div>
+          <div class="mk-overlay"></div>
+          <div class="mk-iframe-wrap">
+            <iframe
+              src="https://luxury-celebrations-2.preview.emergentagent.com/"
+              loading="lazy"
+              sandbox="allow-scripts allow-same-origin allow-forms"
+              scrolling="yes"
+              title="Live preview of luxury-celebrations-2.preview.emergentagent.com"
+              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
+            ></iframe>
+            <div class="mk-iframe-loading">
+              <div class="mk-loading-spinner"></div>
+              <div class="mk-loading-text">Loading preview…</div>
+            </div>
+            <div class="mk-iframe-overlay">
+              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
+            </div>
+          </div>
         </div>
         <div class="pf-body">
           <span class="pf-tag pf-tag--event">🎉 Event Organisation</span>
@@ -363,22 +590,29 @@
       <!-- 10 — CAR SPA -->
       <div class="pf-card" data-cat="carspa"
            data-modal='{"title":"Car Spa Website","category":"Car Spa","client":"Car Spa Business","year":"2024","tech":"WordPress · Elementor · Figma","desc":"A sleek, premium car spa website with services menu, pricing packages, before/after gallery, and online booking — increasing walk-in and online bookings significantly.","emoji":"🚗","tags":["Services Menu","Pricing Packages","Before/After Gallery","Online Booking","Car Spa"]}'>
-        <div class="mk-stage">
-          <div class="mk-bg" style="background:linear-gradient(135deg,#0a0a1a,#1a1a2e)"></div>
-          <div class="mk-overlay"></div>
-          <div class="mk-laptop">
-            <div class="mkl-screen"><div class="mkl-cam"></div>
-              <div class="mkl-vp"><div class="mkl-scroll">
-                <div style="background:#07070f">
-                  <div style="height:10px;background:#0f0f1f;display:flex;align-items:center;padding:0 4px"><div style="width:16px;height:3px;background:#38bdf8;border-radius:2px"></div><div style="flex:1"></div><div style="width:14px;height:3px;background:rgba(56,189,248,.4);border-radius:2px"></div></div>
-                  <div style="background:linear-gradient(135deg,#0f1a2e,#07070f);padding:6px 4px;text-align:center"><div style="font-size:14px;margin-bottom:3px">🚗</div><div style="height:4px;background:rgba(56,189,248,.7);border-radius:2px;width:55%;margin:0 auto 2px"></div><div style="height:2px;background:rgba(56,189,248,.3);border-radius:2px;width:38%;margin:0 auto 3px"></div><div style="height:5px;background:#38bdf8;border-radius:2px;width:28%;margin:0 auto"></div></div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:3px"><div style="height:18px;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);border-radius:2px"></div><div style="height:18px;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);border-radius:2px"></div></div>
-                  <div style="padding:3px 4px"><div style="height:2px;background:rgba(56,189,248,.15);border-radius:1px;width:80%;margin-bottom:2px"></div><div style="height:2px;background:rgba(56,189,248,.08);border-radius:1px;width:55%"></div></div>
-                </div>
-              </div></div>
-            </div><div class="mkl-base"></div><div class="mkl-foot"></div>
+<div class="mk-stage">
+          <div class="mk-chrome">
+            <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
+            <div class="mk-chrome-bar"><span class="mk-chrome-url">shine-elite.preview.emergentagent.com</span></div>
           </div>
-          <div class="mk-phone"><div class="mkp-shell" style="border-color:#1a1a2e"><div class="mkp-notch"></div><div class="mkp-vp"><div class="mkp-scroll"><div style="background:#07070f;padding:2px"><div style="height:5px;background:#0f0f1f;margin-bottom:2px"></div><div style="font-size:10px;text-align:center;margin-bottom:2px">🚗</div><div style="height:3px;background:#38bdf8;border-radius:1px;width:55%;margin:0 auto 2px"></div><div style="height:5px;background:rgba(56,189,248,.2);border-radius:1px;width:40%;margin:0 auto"></div></div></div></div><div class="mkp-bar"></div></div></div>
+          <div class="mk-overlay"></div>
+          <div class="mk-iframe-wrap">
+            <iframe
+              src="https://shine-elite.preview.emergentagent.com/"
+              loading="lazy"
+              sandbox="allow-scripts allow-same-origin allow-forms"
+              scrolling="yes"
+              title="Live preview of shine-elite.preview.emergentagent.com"
+              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
+            ></iframe>
+            <div class="mk-iframe-loading">
+              <div class="mk-loading-spinner"></div>
+              <div class="mk-loading-text">Loading preview…</div>
+            </div>
+            <div class="mk-iframe-overlay">
+              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
+            </div>
+          </div>
         </div>
         <div class="pf-body">
           <span class="pf-tag pf-tag--carspa">🚗 Car Spa</span>
@@ -394,20 +628,29 @@
       <!-- 11 — E-COMMERCE (Modest Elegance) -->
       <div class="pf-card" data-cat="ecommerce"
            data-modal='{"title":"E-commerce / Online Store","category":"E-commerce / Online Store","client":"Online Store","year":"2024","tech":"WooCommerce · PHP · React","desc":"A stylish e-commerce platform with product catalog, cart and checkout, payment gateway, and product filters — serving thousands of monthly shoppers.","emoji":"🛍️","tags":["Product Catalog","Cart & Checkout","Payment Gateway","Product Filters","E-Commerce"]}'>
-        <div class="mk-stage">
-          <div class="mk-bg" style="background:linear-gradient(135deg,#0d2000,#1a3a00)"></div>
-          <div class="mk-overlay"></div>
-          <div class="mk-laptop">
-            <div class="mkl-screen"><div class="mkl-cam"></div>
-              <div class="mkl-vp"><div class="mkl-scroll">
-                <div style="background:#f7fff2">
-                  <div style="height:10px;background:#2a6600;display:flex;align-items:center;padding:0 4px"><div style="width:14px;height:3px;background:#fff;border-radius:2px;opacity:.85"></div><div style="flex:1"></div><div style="width:16px;height:4px;background:rgba(255,255,255,.55);border-radius:2px"></div></div>
-                  <div style="padding:4px;background:#f7fff2"><div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:2px;margin-bottom:2px"><div style="aspect-ratio:1;background:linear-gradient(135deg,#e8f7d0,#d0ec9a);border-radius:2px"></div><div style="aspect-ratio:1;background:linear-gradient(135deg,#ffe8d0,#ffd0a0);border-radius:2px"></div><div style="aspect-ratio:1;background:linear-gradient(135deg,#ffe0e0,#ffc0c0);border-radius:2px"></div><div style="aspect-ratio:1;background:linear-gradient(135deg,#e0e8ff,#c0d0ff);border-radius:2px"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px"><div style="height:16px;background:#e8f7d0;border:1px solid rgba(42,102,0,.1);border-radius:2px"></div><div style="height:16px;background:#e8f7d0;border:1px solid rgba(42,102,0,.1);border-radius:2px"></div></div></div>
-                </div>
-              </div></div>
-            </div><div class="mkl-base"></div><div class="mkl-foot"></div>
+<div class="mk-stage">
+          <div class="mk-chrome">
+            <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
+            <div class="mk-chrome-bar"><span class="mk-chrome-url">modest-elegance-24.preview.emergentagent.com</span></div>
           </div>
-          <div class="mk-phone"><div class="mkp-shell" style="border-color:#1a3a00"><div class="mkp-notch"></div><div class="mkp-vp"><div class="mkp-scroll"><div style="background:#f7fff2;padding:2px"><div style="height:5px;background:#2a6600;margin-bottom:2px"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-bottom:2px"><div style="height:10px;background:#e8f7d0;border-radius:1px"></div><div style="height:10px;background:#ffe8d0;border-radius:1px"></div></div><div style="height:4px;background:#2a6600;border-radius:1px;width:40%;margin:0 auto"></div></div></div></div><div class="mkp-bar"></div></div></div>
+          <div class="mk-overlay"></div>
+          <div class="mk-iframe-wrap">
+            <iframe
+              src="https://modest-elegance-24.preview.emergentagent.com/"
+              loading="lazy"
+              sandbox="allow-scripts allow-same-origin allow-forms"
+              scrolling="yes"
+              title="Live preview of modest-elegance-24.preview.emergentagent.com"
+              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
+            ></iframe>
+            <div class="mk-iframe-loading">
+              <div class="mk-loading-spinner"></div>
+              <div class="mk-loading-text">Loading preview…</div>
+            </div>
+            <div class="mk-iframe-overlay">
+              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
+            </div>
+          </div>
         </div>
         <div class="pf-body">
           <span class="pf-tag pf-tag--ecommerce">🛒 E-commerce / Online Store</span>
@@ -423,21 +666,29 @@
       <!-- 12 — FITNESS STUDIO -->
       <div class="pf-card" data-cat="fitness"
            data-modal='{"title":"Fitness Studio Website","category":"Fitness Studio","client":"Fitness Studio","year":"2024","tech":"WordPress · Figma · PHP","desc":"A high-energy fitness studio website with class schedules, trainer profiles, membership pricing, and online sign-up form — member sign-ups increased by 160% in the first month.","emoji":"💪","tags":["Class Schedule","Trainer Profiles","Membership Plans","Online Sign-Up","Fitness"]}'>
-        <div class="mk-stage">
-          <div class="mk-bg" style="background:linear-gradient(135deg,#021a0e,#043020)"></div>
-          <div class="mk-overlay"></div>
-          <div class="mk-laptop">
-            <div class="mkl-screen"><div class="mkl-cam"></div>
-              <div class="mkl-vp"><div class="mkl-scroll">
-                <div style="background:#f0fff6">
-                  <div style="height:10px;background:#006644;display:flex;align-items:center;padding:0 4px"><div style="width:14px;height:3px;background:#fff;border-radius:2px;opacity:.8"></div><div style="flex:1"></div><div style="width:16px;height:4px;background:rgba(255,255,255,.6);border-radius:2px"></div></div>
-                  <div style="background:linear-gradient(135deg,#006644,#004d30);padding:6px 4px"><div style="height:4px;background:rgba(255,255,255,.7);border-radius:2px;width:60%;margin-bottom:2px"></div><div style="height:2px;background:rgba(255,255,255,.4);border-radius:2px;width:40%;margin-bottom:3px"></div><div style="height:4px;background:#00e5a0;border-radius:2px;width:25%"></div></div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:3px"><div style="height:16px;background:#e0f7ed;border:1px solid rgba(0,102,68,.12);border-radius:2px"></div><div style="height:16px;background:#e0f7ed;border:1px solid rgba(0,102,68,.12);border-radius:2px"></div><div style="height:16px;background:#e0f7ed;border:1px solid rgba(0,102,68,.12);border-radius:2px"></div><div style="height:16px;background:#e0f7ed;border:1px solid rgba(0,102,68,.12);border-radius:2px"></div></div>
-                </div>
-              </div></div>
-            </div><div class="mkl-base"></div><div class="mkl-foot"></div>
+<div class="mk-stage">
+          <div class="mk-chrome">
+            <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
+            <div class="mk-chrome-bar"><span class="mk-chrome-url">femme-strength-club.preview.emergentagent.com</span></div>
           </div>
-          <div class="mk-phone"><div class="mkp-shell" style="border-color:#043020"><div class="mkp-notch"></div><div class="mkp-vp"><div class="mkp-scroll"><div style="background:#f0fff6;padding:2px"><div style="height:5px;background:#006644;margin-bottom:2px"></div><div style="height:2px;background:rgba(0,102,68,.3);border-radius:1px;width:70%;margin-bottom:1px"></div><div style="height:2px;background:rgba(0,102,68,.15);border-radius:1px;width:50%;margin-bottom:3px"></div><div style="height:5px;background:#00e5a0;border-radius:1px;width:38%;margin:0 auto"></div></div></div></div><div class="mkp-bar"></div></div></div>
+          <div class="mk-overlay"></div>
+          <div class="mk-iframe-wrap">
+            <iframe
+              src="https://femme-strength-club.preview.emergentagent.com/"
+              loading="lazy"
+              sandbox="allow-scripts allow-same-origin allow-forms"
+              scrolling="yes"
+              title="Live preview of femme-strength-club.preview.emergentagent.com"
+              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
+            ></iframe>
+            <div class="mk-iframe-loading">
+              <div class="mk-loading-spinner"></div>
+              <div class="mk-loading-text">Loading preview…</div>
+            </div>
+            <div class="mk-iframe-overlay">
+              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
+            </div>
+          </div>
         </div>
         <div class="pf-body">
           <span class="pf-tag pf-tag--fitness">💪 Fitness Studio</span>
@@ -504,14 +755,79 @@
       </div>
       <div class="footer-col"><h5>Services</h5><ul><li><a href="services.html#web-design">Web Design</a></li><li><a href="services.html#branding">Brand Identity</a></li><li><a href="services.html#uiux">UI/UX Design</a></li><li><a href="services.html#ecommerce">E-Commerce</a></li></ul></div>
       <div class="footer-col"><h5>Company</h5><ul><li><a href="about.html">About Us</a></li><li><a href="portfolio.html">Portfolio</a></li><li><a href="pricing.html">Pricing</a></li><li><a href="contact.html">Contact</a></li></ul></div>
-      <div class="footer-col"><h5>Contact</h5><ul><li><a href="mailto:hello@idesign4u.in">hello@idesign4u.in</a></li><li><a href="tel:+919876543210">+91 98765 43210</a></li><li><a href="about.html">Hyderabad, India</a></li></ul></div>
+      <div class="footer-col"><h5>Contact</h5><ul><li><a href="/cdn-cgi/l/email-protection#ddb5b8b1b1b29db4b9b8aeb4bab3e9a8f3b4b3"><span class="__cf_email__" data-cfemail="caa2afa6a6a58aa3aeafb9a3ada4febfe4a3a4">[email&#160;protected]</span></a></li><li><a href="tel:+919876543210">+91 98765 43210</a></li><li><a href="about.html">Hyderabad, India</a></li></ul></div>
     </div>
     <div class="footer-bottom"><span>&#169; 2025 iDesign4U. All rights reserved.</span><span>Built with &#10084;&#65039; in India</span></div>
   </div>
 </footer>
 
-<button id="scrollTop" aria-label="Scroll to top">&#8593;</button>
+<button id="scrollTop" aria-label="Scroll to top">↑</button>
 <script src="script.js"></script>
 <script src="js/portfolio.js"></script>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   LIVE IFRAME PREVIEW — interaction manager
+   - Marks iframe loading states
+   - Stops auto-scroll animation when card is hovered
+   - Re-enables auto-scroll on mouse leave
+   - Intersection Observer: only start loading iframes
+     when the card is about to enter the viewport (perf)
+══════════════════════════════════════════════════════════ */
+(function initIframePreviews() {
+  var cards = document.querySelectorAll('.pf-card');
+
+  /* Lazy-load: set src only when card is near viewport */
+  var lazyIO = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) return;
+      var iframe = entry.target.querySelector('iframe[data-src]');
+      if (iframe) {
+        iframe.src = iframe.dataset.src;
+        delete iframe.dataset.src;
+      }
+      lazyIO.unobserve(entry.target);
+    });
+  }, { rootMargin: '200px' });
+
+  cards.forEach(function(card) {
+    var iframe = card.querySelector('iframe');
+    if (!iframe) return;
+
+    /* Convert src → data-src for lazy loading */
+    if (iframe.src && iframe.src !== window.location.href) {
+      iframe.dataset.src = iframe.src;
+      iframe.removeAttribute('src');
+    }
+
+    /* iframe loaded → hide loading skeleton */
+    iframe.addEventListener('load', function() {
+      var loading = card.querySelector('.mk-iframe-loading');
+      if (loading) {
+        loading.classList.add('loaded');
+        setTimeout(function() { loading.style.display='none'; }, 600);
+      }
+    });
+
+    lazyIO.observe(card);
+
+    /* Hover: stop auto-scroll, enable scroll interaction */
+    card.addEventListener('mouseenter', function() {
+      if (iframe) iframe.style.animationPlayState = 'paused';
+    });
+    card.addEventListener('mouseleave', function() {
+      if (iframe) iframe.style.animationPlayState = 'running';
+    });
+  });
+
+  /* Make "View Live Site" button open in new tab, not the card modal */
+  document.querySelectorAll('.pf-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+  });
+
+})();
+</script>
 </body>
 </html>
