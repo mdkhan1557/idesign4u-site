@@ -10,161 +10,208 @@
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css"/>
   <link rel="stylesheet" href="css/portfolio.css"/>
+  
   <style>
     /* ══════════════════════════════════════════════════════════
-       LIVE IFRAME PREVIEW SYSTEM
-       Each .mk-stage now contains:
-         - .mk-iframe-wrap  : clipped container (same dimensions)
-         - iframe           : the actual live site, lazy-loaded
-         - .mk-iframe-overlay: dark tint + "scroll to preview" hint
-         - .mk-iframe-label : browser chrome bar at top
-       On hover: overlay fades, iframe becomes interactive
-       The existing laptop/phone mockup CSS drives the frame shape
+       SCREENSHOT SCROLL PREVIEW SYSTEM
+       Each .mk-stage contains:
+         .mk-chrome         — browser chrome bar (dots + URL)
+         .mk-scroll-wrap    — overflow:hidden container
+         .mk-scroll-inner   — tall div with CSS-simulated page
+                              animates translateY upward (smooth scroll)
+         .mk-scroll-overlay — gradient tint + hint pill
+       On card hover: animation slows to user-speed, overlay fades
     ══════════════════════════════════════════════════════════ */
 
-    /* Browser chrome bar sits above the iframe */
+    /* ── Browser chrome bar ── */
     .mk-chrome {
       position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 26px; z-index: 4;
-      background: rgba(10,10,20,.95);
-      display: flex; align-items: center;
-      padding: 0 10px; gap: 6px;
-      border-bottom: 1px solid rgba(108,71,255,.2);
+      top: 0; left: 0; right: 0; height: 28px; z-index: 5;
+      background: #111122;
+      display: flex; align-items: center; padding: 0 10px; gap: 6px;
+      border-bottom: 1px solid rgba(108,71,255,.25);
       flex-shrink: 0;
     }
-    .mk-chrome-dots { display:flex; gap:5px; }
-    .mk-chrome-dots span {
-      width:9px; height:9px; border-radius:50%; display:block;
-    }
+    .mk-chrome-dots { display:flex; gap:5px; flex-shrink:0; }
+    .mk-chrome-dots span { width:9px; height:9px; border-radius:50%; display:block; }
     .mk-chrome-dots span:nth-child(1){background:#ff5f57;}
     .mk-chrome-dots span:nth-child(2){background:#febc2e;}
     .mk-chrome-dots span:nth-child(3){background:#28c840;}
     .mk-chrome-bar {
       flex:1; height:14px;
-      background:rgba(108,71,255,.12);
-      border:1px solid rgba(108,71,255,.2);
-      border-radius:7px; margin:0 8px;
-      display:flex; align-items:center; padding:0 8px;
+      background:rgba(108,71,255,.1);
+      border:1px solid rgba(108,71,255,.22);
+      border-radius:7px; margin: 0 6px;
+      display:flex; align-items:center; padding:0 8px; overflow:hidden;
     }
     .mk-chrome-url {
-      font-size:9px; color:rgba(255,255,255,.45);
-      white-space:nowrap; overflow:hidden;
-      font-family:'DM Sans',sans-serif;
+      font-size:9px; color:rgba(255,255,255,.4);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      font-family:'DM Sans',monospace; letter-spacing:.2px;
     }
 
-    /* Full-stage iframe wrapper */
-    .mk-iframe-wrap {
+    /* ── Scroll wrapper — fills the stage below the chrome bar ── */
+    .mk-scroll-wrap {
       position: absolute;
-      inset: 0;
-      z-index: 1;
+      top: 28px; left: 0; right: 0; bottom: 0;
       overflow: hidden;
-      border-radius: inherit;
-      display: flex;
-      flex-direction: column;
+      z-index: 1;
     }
 
-    /* The iframe itself */
-    .mk-iframe-wrap iframe {
-      flex: 1;
+    /* ── Inner scrolling content ── */
+    .mk-scroll-inner {
       width: 100%;
-      border: none;
-      /* Scale down so the full site is visible — 200% width/height then scale 0.5 */
-      transform-origin: top left;
-      transform: scale(0.5);
-      width: 200%;
-      height: 200%;
-      pointer-events: none;   /* OFF by default so card hover/click works */
-      transition: pointer-events 0s;
-      background: #fff;
-      /* Slow auto-scroll animation when not hovered */
-      animation: iframeAutoScroll 12s ease-in-out infinite alternate;
+      /* Animates upward — translateY goes from 0 to negative (scroll up) */
+      animation: pageScroll 18s linear infinite;
+      will-change: transform;
     }
-    @keyframes iframeAutoScroll {
-      0%   { margin-top: 0; }
-      100% { margin-top: -50%; }
+    /* Slow elegant scroll — pause on card hover */
+    @keyframes pageScroll {
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(calc(-100% + 202px)); }
     }
-
-    /* Overlay: dims the iframe and shows hint */
-    .mk-iframe-overlay {
-      position: absolute;
-      inset: 0; z-index: 3;
-      background: linear-gradient(
-        to bottom,
-        rgba(7,7,15,.0) 0%,
-        rgba(7,7,15,.65) 85%,
-        rgba(7,7,15,.85) 100%
-      );
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      padding-bottom: 14px;
-      transition: opacity .35s ease;
-      border-radius: inherit;
-      pointer-events: none;
-    }
-
-    /* "Scroll to preview" hint pill */
-    .mk-preview-hint {
-      display: flex; align-items: center; gap: 6px;
-      background: rgba(108,71,255,.22);
-      border: 1px solid rgba(108,71,255,.4);
-      border-radius: 100px;
-      padding: 5px 12px;
-      font-size: .68rem; font-weight: 600;
-      color: rgba(255,255,255,.85);
-      font-family: 'DM Sans',sans-serif;
-      letter-spacing: .3px;
-      backdrop-filter: blur(6px);
-      transition: opacity .3s;
-    }
-    .mk-preview-hint::before {
-      content: '';
-      width: 6px; height: 6px; border-radius: 50%;
-      background: #00e5a0;
-      box-shadow: 0 0 6px #00e5a0;
-      flex-shrink: 0;
-    }
-
-    /* On card hover: overlay fades, iframe gets pointer events + stops auto-scroll */
-    .pf-card:hover .mk-iframe-overlay {
-      opacity: 0;
-    }
-    .pf-card:hover .mk-iframe-wrap iframe {
-      pointer-events: all;
+    .pf-card:hover .mk-scroll-inner {
       animation-play-state: paused;
     }
 
-    /* Loading skeleton shown before iframe loads */
-    .mk-iframe-loading {
+    /* ── Overlay with hint ── */
+    .mk-scroll-overlay {
       position: absolute;
-      inset: 0; z-index: 2;
-      background: linear-gradient(135deg,#0d0d22,#1a1a3a);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 8px;
-      transition: opacity .5s;
+      inset: 0; z-index: 3; pointer-events: none;
+      background: linear-gradient(
+        to bottom,
+        rgba(7,7,15,0) 30%,
+        rgba(7,7,15,.55) 75%,
+        rgba(7,7,15,.82) 100%
+      );
+      display: flex; align-items: flex-end; justify-content: center;
+      padding-bottom: 14px;
+      transition: opacity .35s ease;
+      border-radius: 0 0 inherit inherit;
     }
-    .mk-iframe-loading.loaded { opacity: 0; pointer-events: none; }
-    .mk-loading-spinner {
-      width: 22px; height: 22px; border-radius: 50%;
-      border: 2px solid rgba(108,71,255,.2);
-      border-top-color: var(--accent, #6c47ff);
-      animation: spin .8s linear infinite;
+    .pf-card:hover .mk-scroll-overlay { opacity: 0; }
+
+    .mk-preview-hint {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(108,71,255,.22);
+      border: 1px solid rgba(108,71,255,.4);
+      border-radius: 100px; padding: 5px 14px;
+      font-size: .68rem; font-weight: 600; letter-spacing: .3px;
+      color: rgba(255,255,255,.88);
+      font-family: 'DM Sans',sans-serif;
+      backdrop-filter: blur(8px);
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .mk-loading-text {
-      font-size: .65rem; color: rgba(255,255,255,.35);
-      font-family:'DM Sans',sans-serif;
+    .mk-preview-hint::before {
+      content:''; width:7px; height:7px; border-radius:50%;
+      background:#00e5a0; box-shadow:0 0 7px #00e5a0; flex-shrink:0;
+      animation: hintPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes hintPulse {
+      0%,100%{opacity:1;transform:scale(1);}
+      50%{opacity:.6;transform:scale(1.3);}
     }
 
-    /* Responsive — reduce iframe scale on smaller screens */
-    @media(max-width:768px) {
-      .mk-iframe-wrap iframe {
-        transform: scale(0.38);
-        width: 263%;
-        height: 263%;
-      }
+    /* ── Page section blocks inside the scroll ── */
+    .mk-page-section {
+      width: 100%; overflow: hidden;
+    }
+
+    /* ── Simulated nav bar ── */
+    .mk-sim-nav {
+      height: 36px; padding: 0 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .mk-sim-logo { height:8px; width:60px; border-radius:3px; }
+    .mk-sim-nav-links { display:flex; gap:6px; margin-left:auto; }
+    .mk-sim-nav-links span { height:5px; width:28px; border-radius:2px; background:rgba(255,255,255,.18); }
+    .mk-sim-nav-cta { height:16px; width:48px; border-radius:8px; }
+
+    /* ── Hero section ── */
+    .mk-sim-hero {
+      padding: 18px 12px 14px;
+      display: flex; flex-direction: column; gap: 7px;
+    }
+    .mk-sim-h1 { height:12px; border-radius:4px; }
+    .mk-sim-h1-2 { height:10px; border-radius:4px; width:72%; }
+    .mk-sim-p { height:5px; border-radius:2px; background:rgba(255,255,255,.15); }
+    .mk-sim-p.short { width:60%; }
+    .mk-sim-btns { display:flex; gap:6px; margin-top:4px; }
+    .mk-sim-btn-a { height:16px; width:70px; border-radius:8px; }
+    .mk-sim-btn-b { height:16px; width:55px; border-radius:8px; background:transparent; border:1px solid rgba(255,255,255,.25); }
+
+    /* Hero visual placeholder */
+    .mk-sim-hero-img {
+      width:100%; height:60px; border-radius:6px;
+      margin-top:8px;
+    }
+
+    /* ── Grid of cards ── */
+    .mk-sim-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px;
+      padding: 10px 12px;
+    }
+    .mk-sim-card {
+      border-radius:5px; padding:7px; display:flex; flex-direction:column; gap:4px;
+    }
+    .mk-sim-card-ico { width:18px; height:18px; border-radius:4px; }
+    .mk-sim-card-t { height:6px; border-radius:2px; }
+    .mk-sim-card-p { height:3px; border-radius:1px; background:rgba(255,255,255,.12); }
+    .mk-sim-card-p.s { width:70%; }
+
+    /* ── Section label + heading ── */
+    .mk-sim-section-head {
+      padding: 12px 12px 6px;
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .mk-sim-label { height:5px; width:55px; border-radius:2px; }
+    .mk-sim-sec-h { height:9px; width:75%; border-radius:3px; }
+
+    /* ── Feature rows ── */
+    .mk-sim-features {
+      padding: 6px 12px; display:flex; flex-direction:column; gap:4px;
+    }
+    .mk-sim-feat-row { display:flex; align-items:center; gap:6px; }
+    .mk-sim-feat-ico { width:16px; height:16px; border-radius:50%; flex-shrink:0; }
+    .mk-sim-feat-text { flex:1; height:4px; border-radius:2px; background:rgba(255,255,255,.12); }
+
+    /* ── Testimonial cards ── */
+    .mk-sim-testimonials {
+      padding: 8px 12px; display:grid; grid-template-columns:1fr 1fr; gap:5px;
+    }
+    .mk-sim-tcard {
+      border-radius:5px; padding:7px; display:flex; flex-direction:column; gap:4px;
+    }
+    .mk-sim-stars { font-size:6px; color:#f5a623; letter-spacing:1px; }
+    .mk-sim-tcard-p { height:3px; border-radius:1px; background:rgba(255,255,255,.14); }
+
+    /* ── CTA banner ── */
+    .mk-sim-cta {
+      margin: 8px 12px; border-radius:8px; padding:12px;
+      text-align:center; display:flex; flex-direction:column; gap:6px; align-items:center;
+    }
+    .mk-sim-cta-h { height:8px; width:70%; border-radius:3px; }
+    .mk-sim-cta-p { height:4px; width:55%; border-radius:2px; background:rgba(255,255,255,.18); }
+    .mk-sim-cta-btns { display:flex; gap:6px; }
+    .mk-sim-cta-btn { height:16px; width:65px; border-radius:8px; }
+
+    /* ── Footer ── */
+    .mk-sim-footer {
+      padding: 10px 12px;
+      display: grid; grid-template-columns:1fr 1fr; gap:8px;
+    }
+    .mk-sim-footer-col { display:flex; flex-direction:column; gap:4px; }
+    .mk-sim-footer-t { height:5px; width:40px; border-radius:2px; }
+    .mk-sim-footer-l { height:3px; border-radius:1px; background:rgba(255,255,255,.1); }
+
+    /* ── Gallery grid (for portfolio/salon/restaurant) ── */
+    .mk-sim-gallery {
+      display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; padding:8px 12px;
+    }
+    .mk-sim-gallery-img { height:40px; border-radius:4px; }
+
+    /* ── Divider ── */
+    .mk-sim-divider {
+      height:1px; background:rgba(255,255,255,.06); margin:4px 12px;
     }
   </style>
 </head>
@@ -253,23 +300,71 @@
             <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
             <div class="mk-chrome-bar"><span class="mk-chrome-url">id4u-dine.preview.emergentagent.com</span></div>
           </div>
+          <div class="mk-scroll-wrap"><div class="mk-scroll-inner">
+            <div class="mk-page-section">
+              <div class="mk-sim-nav" style="background:#1a0600">
+                <div class="mk-sim-logo" style="background:#f5a623"></div>
+                <div class="mk-sim-nav-links"><span></span><span></span><span></span></div>
+                <div class="mk-sim-nav-cta" style="background:#e87c00"></div>
+              </div>
+            </div><div class="mk-page-section mk-sim-hero" style="background:#2d0a00">
+              <div class="mk-sim-h1" style="background:#f5a623;width:80%"></div>
+              <div class="mk-sim-h1-2" style="background:rgba(255,255,255,.55)"></div>
+              <div class="mk-sim-p"></div>
+              <div class="mk-sim-p short"></div>
+              <div class="mk-sim-btns">
+                <div class="mk-sim-btn-a" style="background:#e87c00"></div>
+                <div class="mk-sim-btn-b"></div>
+              </div>
+              <div class="mk-sim-hero-img" style="background:linear-gradient(135deg,#8b2500,#5a1000)"></div>
+            </div><div class="mk-page-section mk-sim-gallery" style="background:#1a0600"><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#8b2500,#5a1200)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#6b1800,#3d0800)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#9b3000,#6b1a00)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#7a2800,#4a1000)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#5a2000,#3a1000)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#8a3500,#5a1800)"></div></div><div class="mk-page-section mk-sim-section-head" style="background:#120400">
+              <div class="mk-sim-label" style="background:#f5a623"></div>
+              <div class="mk-sim-sec-h" style="background:rgba(255,255,255,.6)"></div>
+            </div><div class="mk-page-section mk-sim-grid" style="background:#0a0300"><div class="mk-sim-card" style="background:rgba(245,120,35,.1);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(245,166,35,.6)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(245,120,35,.1);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(255,100,30,.5)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(245,120,35,.1);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(200,80,20,.6)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div></div><div class="mk-page-section">
+              <div class="mk-sim-cta" style="background:#1a0600">
+                <div class="mk-sim-cta-h" style="background:#f5a623"></div>
+                <div class="mk-sim-cta-p"></div>
+                <div class="mk-sim-cta-btns">
+                  <div class="mk-sim-cta-btn" style="background:#e87c00"></div>
+                  <div class="mk-sim-cta-btn" style="background:transparent;border:1px solid rgba(255,255,255,.3)"></div>
+                </div>
+              </div>
+            </div><div class="mk-page-section mk-sim-footer" style="background:#0a0300"><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div></div>
+          </div></div>
           <div class="mk-overlay"></div>
-          <div class="mk-iframe-wrap">
-            <iframe
-              src="https://id4u-dine.preview.emergentagent.com/"
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-forms"
-              scrolling="yes"
-              title="Live preview of id4u-dine.preview.emergentagent.com"
-              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
-            ></iframe>
-            <div class="mk-iframe-loading">
-              <div class="mk-loading-spinner"></div>
-              <div class="mk-loading-text">Loading preview…</div>
-            </div>
-            <div class="mk-iframe-overlay">
-              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
-            </div>
+          <div class="mk-scroll-overlay">
+            <div class="mk-preview-hint">Scrolling Preview</div>
           </div>
         </div>
         <div class="pf-body">
@@ -291,23 +386,102 @@
             <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
             <div class="mk-chrome-bar"><span class="mk-chrome-url">approved-plots-hyd.preview.emergentagent.com</span></div>
           </div>
+          <div class="mk-scroll-wrap"><div class="mk-scroll-inner">
+            <div class="mk-page-section">
+              <div class="mk-sim-nav" style="background:#003366">
+                <div class="mk-sim-logo" style="background:#38bdf8"></div>
+                <div class="mk-sim-nav-links"><span></span><span></span><span></span></div>
+                <div class="mk-sim-nav-cta" style="background:#f5a623"></div>
+              </div>
+            </div><div class="mk-page-section mk-sim-hero" style="background:#001a3a">
+              <div class="mk-sim-h1" style="background:rgba(56,189,248,.8);width:80%"></div>
+              <div class="mk-sim-h1-2" style="background:rgba(255,255,255,.55)"></div>
+              <div class="mk-sim-p"></div>
+              <div class="mk-sim-p short"></div>
+              <div class="mk-sim-btns">
+                <div class="mk-sim-btn-a" style="background:#f5a623"></div>
+                <div class="mk-sim-btn-b"></div>
+              </div>
+              <div class="mk-sim-hero-img" style="background:linear-gradient(135deg,#003d80,#001a50)"></div>
+            </div><div class="mk-page-section mk-sim-grid" style="background:#f0f6ff"><div class="mk-sim-card" style="background:#fff;border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(0,51,102,.4)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:#fff;border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(0,80,160,.4)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:#fff;border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(0,102,204,.4)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:#fff;border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(0,51,102,.5)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:#fff;border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(0,80,160,.5)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:#fff;border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(0,60,130,.4)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div></div><div class="mk-page-section mk-sim-section-head" style="background:#e8f0ff">
+              <div class="mk-sim-label" style="background:rgba(0,51,102,.4)"></div>
+              <div class="mk-sim-sec-h" style="background:rgba(0,51,102,.7)"></div>
+            </div><div class="mk-page-section mk-sim-gallery" style="background:#fff"><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#c0d8f0,#a0c0e8)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#b0d0f0,#90b8e0)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#d0e4f8,#b0c8e8)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#c8dcf5,#a8c4e0)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#b8d4f0,#98bce0)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#d8e8ff,#c0d4f5)"></div></div><div class="mk-page-section mk-sim-testimonials" style="background:#f0f6ff"><div class="mk-sim-tcard" style="background:#fff;border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:#fff;border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:#fff;border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:#fff;border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div></div><div class="mk-page-section">
+              <div class="mk-sim-cta" style="background:#003366">
+                <div class="mk-sim-cta-h" style="background:rgba(255,255,255,.8)"></div>
+                <div class="mk-sim-cta-p"></div>
+                <div class="mk-sim-cta-btns">
+                  <div class="mk-sim-cta-btn" style="background:#f5a623"></div>
+                  <div class="mk-sim-cta-btn" style="background:transparent;border:1px solid rgba(255,255,255,.3)"></div>
+                </div>
+              </div>
+            </div><div class="mk-page-section mk-sim-footer" style="background:#001a3a"><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div></div>
+          </div></div>
           <div class="mk-overlay"></div>
-          <div class="mk-iframe-wrap">
-            <iframe
-              src="https://approved-plots-hyd.preview.emergentagent.com/"
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-forms"
-              scrolling="yes"
-              title="Live preview of approved-plots-hyd.preview.emergentagent.com"
-              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
-            ></iframe>
-            <div class="mk-iframe-loading">
-              <div class="mk-loading-spinner"></div>
-              <div class="mk-loading-text">Loading preview…</div>
-            </div>
-            <div class="mk-iframe-overlay">
-              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
-            </div>
+          <div class="mk-scroll-overlay">
+            <div class="mk-preview-hint">Scrolling Preview</div>
           </div>
         </div>
         <div class="pf-body">
@@ -329,23 +503,102 @@
             <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
             <div class="mk-chrome-bar"><span class="mk-chrome-url">smile-tech-hub-1.preview.emergentagent.com</span></div>
           </div>
+          <div class="mk-scroll-wrap"><div class="mk-scroll-inner">
+            <div class="mk-page-section">
+              <div class="mk-sim-nav" style="background:#006644">
+                <div class="mk-sim-logo" style="background:rgba(255,255,255,.9)"></div>
+                <div class="mk-sim-nav-links"><span></span><span></span><span></span></div>
+                <div class="mk-sim-nav-cta" style="background:#34d399"></div>
+              </div>
+            </div><div class="mk-page-section mk-sim-hero" style="background:#003322">
+              <div class="mk-sim-h1" style="background:rgba(52,211,153,.8);width:80%"></div>
+              <div class="mk-sim-h1-2" style="background:rgba(255,255,255,.55)"></div>
+              <div class="mk-sim-p"></div>
+              <div class="mk-sim-p short"></div>
+              <div class="mk-sim-btns">
+                <div class="mk-sim-btn-a" style="background:#34d399"></div>
+                <div class="mk-sim-btn-b"></div>
+              </div>
+              <div class="mk-sim-hero-img" style="background:linear-gradient(135deg,#006644,#003d28)"></div>
+            </div><div class="mk-page-section mk-sim-section-head" style="background:#002a1a">
+              <div class="mk-sim-label" style="background:#34d399"></div>
+              <div class="mk-sim-sec-h" style="background:rgba(255,255,255,.6)"></div>
+            </div><div class="mk-page-section mk-sim-grid" style="background:#002a1a"><div class="mk-sim-card" style="background:rgba(0,100,68,.2);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(52,211,153,.6)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(0,100,68,.2);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(52,211,153,.4)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(0,100,68,.2);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(52,211,153,.5)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div></div><div class="mk-page-section mk-sim-features" style="background:#001a10"><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(52,211,153,.6)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(0,200,120,.5)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(40,180,100,.55)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(52,211,153,.45)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div></div><div class="mk-page-section mk-sim-section-head" style="background:#00120a">
+              <div class="mk-sim-label" style="background:#34d399"></div>
+              <div class="mk-sim-sec-h" style="background:rgba(255,255,255,.5)"></div>
+            </div><div class="mk-page-section mk-sim-testimonials" style="background:#001a10"><div class="mk-sim-tcard" style="background:rgba(0,80,50,.3);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:rgba(0,80,50,.3);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:rgba(0,80,50,.3);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:rgba(0,80,50,.3);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div></div><div class="mk-page-section">
+              <div class="mk-sim-cta" style="background:#003322">
+                <div class="mk-sim-cta-h" style="background:rgba(52,211,153,.8)"></div>
+                <div class="mk-sim-cta-p"></div>
+                <div class="mk-sim-cta-btns">
+                  <div class="mk-sim-cta-btn" style="background:#34d399"></div>
+                  <div class="mk-sim-cta-btn" style="background:transparent;border:1px solid rgba(255,255,255,.3)"></div>
+                </div>
+              </div>
+            </div><div class="mk-page-section mk-sim-footer" style="background:#000f08"><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div></div>
+          </div></div>
           <div class="mk-overlay"></div>
-          <div class="mk-iframe-wrap">
-            <iframe
-              src="https://smile-tech-hub-1.preview.emergentagent.com/"
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-forms"
-              scrolling="yes"
-              title="Live preview of smile-tech-hub-1.preview.emergentagent.com"
-              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
-            ></iframe>
-            <div class="mk-iframe-loading">
-              <div class="mk-loading-spinner"></div>
-              <div class="mk-loading-text">Loading preview…</div>
-            </div>
-            <div class="mk-iframe-overlay">
-              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
-            </div>
+          <div class="mk-scroll-overlay">
+            <div class="mk-preview-hint">Scrolling Preview</div>
           </div>
         </div>
         <div class="pf-body">
@@ -367,23 +620,114 @@
             <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
             <div class="mk-chrome-bar"><span class="mk-chrome-url">school-five-steel.vercel.app</span></div>
           </div>
+          <div class="mk-scroll-wrap"><div class="mk-scroll-inner">
+            <div class="mk-page-section">
+              <div class="mk-sim-nav" style="background:#1a0a3d">
+                <div class="mk-sim-logo" style="background:#a78bfa"></div>
+                <div class="mk-sim-nav-links"><span></span><span></span><span></span></div>
+                <div class="mk-sim-nav-cta" style="background:#6c47ff"></div>
+              </div>
+            </div><div class="mk-page-section mk-sim-hero" style="background:#0d0620">
+              <div class="mk-sim-h1" style="background:rgba(167,139,250,.85);width:80%"></div>
+              <div class="mk-sim-h1-2" style="background:rgba(255,255,255,.55)"></div>
+              <div class="mk-sim-p"></div>
+              <div class="mk-sim-p short"></div>
+              <div class="mk-sim-btns">
+                <div class="mk-sim-btn-a" style="background:#6c47ff"></div>
+                <div class="mk-sim-btn-b"></div>
+              </div>
+              <div class="mk-sim-hero-img" style="background:linear-gradient(135deg,#2d1a6e,#1a0a40)"></div>
+            </div><div class="mk-page-section mk-sim-section-head" style="background:#0a0418">
+              <div class="mk-sim-label" style="background:#a78bfa"></div>
+              <div class="mk-sim-sec-h" style="background:rgba(255,255,255,.6)"></div>
+            </div><div class="mk-page-section mk-sim-grid" style="background:#0a0418"><div class="mk-sim-card" style="background:rgba(108,71,255,.15);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(108,71,255,.6)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(108,71,255,.15);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(167,139,250,.5)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(108,71,255,.15);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(139,92,246,.55)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(108,71,255,.15);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(108,71,255,.45)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(108,71,255,.15);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(167,139,250,.6)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(108,71,255,.15);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(124,58,237,.5)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div></div><div class="mk-page-section mk-sim-features" style="background:#060210"><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(108,71,255,.6)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(167,139,250,.5)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(139,92,246,.55)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(108,71,255,.45)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div></div><div class="mk-page-section mk-sim-testimonials" style="background:#0a0418"><div class="mk-sim-tcard" style="background:rgba(108,71,255,.15);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:rgba(108,71,255,.15);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:rgba(108,71,255,.15);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:rgba(108,71,255,.15);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div></div><div class="mk-page-section">
+              <div class="mk-sim-cta" style="background:#1a0a3d">
+                <div class="mk-sim-cta-h" style="background:rgba(167,139,250,.85)"></div>
+                <div class="mk-sim-cta-p"></div>
+                <div class="mk-sim-cta-btns">
+                  <div class="mk-sim-cta-btn" style="background:#6c47ff"></div>
+                  <div class="mk-sim-cta-btn" style="background:transparent;border:1px solid rgba(255,255,255,.3)"></div>
+                </div>
+              </div>
+            </div><div class="mk-page-section mk-sim-footer" style="background:#060210"><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div></div>
+          </div></div>
           <div class="mk-overlay"></div>
-          <div class="mk-iframe-wrap">
-            <iframe
-              src="https://school-five-steel.vercel.app/"
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-forms"
-              scrolling="yes"
-              title="Live preview of school-five-steel.vercel.app"
-              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
-            ></iframe>
-            <div class="mk-iframe-loading">
-              <div class="mk-loading-spinner"></div>
-              <div class="mk-loading-text">Loading preview…</div>
-            </div>
-            <div class="mk-iframe-overlay">
-              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
-            </div>
+          <div class="mk-scroll-overlay">
+            <div class="mk-preview-hint">Scrolling Preview</div>
           </div>
         </div>
         <div class="pf-body">
@@ -405,23 +749,84 @@
             <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
             <div class="mk-chrome-bar"><span class="mk-chrome-url">style-vault-112.preview.emergentagent.com</span></div>
           </div>
+          <div class="mk-scroll-wrap"><div class="mk-scroll-inner">
+            <div class="mk-page-section">
+              <div class="mk-sim-nav" style="background:#1a1a2e">
+                <div class="mk-sim-logo" style="background:rgba(255,255,255,.7)"></div>
+                <div class="mk-sim-nav-links"><span></span><span></span><span></span></div>
+                <div class="mk-sim-nav-cta" style="background:#6c47ff"></div>
+              </div>
+            </div><div class="mk-page-section mk-sim-hero" style="background:#0d0d1e">
+              <div class="mk-sim-h1" style="background:rgba(255,255,255,.8);width:80%"></div>
+              <div class="mk-sim-h1-2" style="background:rgba(255,255,255,.55)"></div>
+              <div class="mk-sim-p"></div>
+              <div class="mk-sim-p short"></div>
+              <div class="mk-sim-btns">
+                <div class="mk-sim-btn-a" style="background:#6c47ff"></div>
+                <div class="mk-sim-btn-b"></div>
+              </div>
+              <div class="mk-sim-hero-img" style="background:linear-gradient(135deg,#2a1a4e,#1a1a3a)"></div>
+            </div><div class="mk-page-section mk-sim-section-head" style="background:#0a0a18">
+              <div class="mk-sim-label" style="background:rgba(108,71,255,.7)"></div>
+              <div class="mk-sim-sec-h" style="background:rgba(255,255,255,.6)"></div>
+            </div><div class="mk-page-section mk-sim-gallery" style="background:#f5f0eb"><div class="mk-sim-gallery-img" style="background:linear-gradient(180deg,#d4b896,#c4a07a)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(180deg,#8b6e52,#7a5a3a)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(180deg,#e8c9a0,#d4a870)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(180deg,#c4a07a,#a0806a)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(180deg,#7a5a4a,#5a3a2a)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(180deg,#d4b896,#b8906a)"></div></div><div class="mk-page-section mk-sim-features" style="background:#0a0a18"><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(108,71,255,.6)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(245,166,35,.5)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(255,77,141,.55)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(56,189,248,.5)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div></div><div class="mk-page-section mk-sim-testimonials" style="background:#0d0d1e"><div class="mk-sim-tcard" style="background:rgba(108,71,255,.12);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:rgba(108,71,255,.12);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:rgba(108,71,255,.12);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:rgba(108,71,255,.12);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div></div><div class="mk-page-section">
+              <div class="mk-sim-cta" style="background:#1a1a2e">
+                <div class="mk-sim-cta-h" style="background:rgba(255,255,255,.8)"></div>
+                <div class="mk-sim-cta-p"></div>
+                <div class="mk-sim-cta-btns">
+                  <div class="mk-sim-cta-btn" style="background:#6c47ff"></div>
+                  <div class="mk-sim-cta-btn" style="background:transparent;border:1px solid rgba(255,255,255,.3)"></div>
+                </div>
+              </div>
+            </div><div class="mk-page-section mk-sim-footer" style="background:#07070f"><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div></div>
+          </div></div>
           <div class="mk-overlay"></div>
-          <div class="mk-iframe-wrap">
-            <iframe
-              src="https://style-vault-112.preview.emergentagent.com/"
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-forms"
-              scrolling="yes"
-              title="Live preview of style-vault-112.preview.emergentagent.com"
-              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
-            ></iframe>
-            <div class="mk-iframe-loading">
-              <div class="mk-loading-spinner"></div>
-              <div class="mk-loading-text">Loading preview…</div>
-            </div>
-            <div class="mk-iframe-overlay">
-              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
-            </div>
+          <div class="mk-scroll-overlay">
+            <div class="mk-preview-hint">Scrolling Preview</div>
           </div>
         </div>
         <div class="pf-body">
@@ -443,23 +848,71 @@
             <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
             <div class="mk-chrome-bar"><span class="mk-chrome-url">travel-flow-5.preview.emergentagent.com</span></div>
           </div>
+          <div class="mk-scroll-wrap"><div class="mk-scroll-inner">
+            <div class="mk-page-section">
+              <div class="mk-sim-nav" style="background:#004d4d">
+                <div class="mk-sim-logo" style="background:rgba(255,255,255,.85)"></div>
+                <div class="mk-sim-nav-links"><span></span><span></span><span></span></div>
+                <div class="mk-sim-nav-cta" style="background:#00e5a0"></div>
+              </div>
+            </div><div class="mk-page-section mk-sim-hero" style="background:#003333">
+              <div class="mk-sim-h1" style="background:rgba(0,229,160,.8);width:80%"></div>
+              <div class="mk-sim-h1-2" style="background:rgba(255,255,255,.55)"></div>
+              <div class="mk-sim-p"></div>
+              <div class="mk-sim-p short"></div>
+              <div class="mk-sim-btns">
+                <div class="mk-sim-btn-a" style="background:#00e5a0"></div>
+                <div class="mk-sim-btn-b"></div>
+              </div>
+              <div class="mk-sim-hero-img" style="background:linear-gradient(135deg,#006666,#003d3d)"></div>
+            </div><div class="mk-page-section mk-sim-gallery" style="background:#e8fffc"><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#b8f0e8,#90e0d4)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#a0e8dc,#78d8cc)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#c0f4ec,#98e4d8)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#a8ecdf,#80dccf)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#b0f0e4,#88e0d0)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#c8f8f0,#a0e8dc)"></div></div><div class="mk-page-section mk-sim-section-head" style="background:#002a2a">
+              <div class="mk-sim-label" style="background:#00e5a0"></div>
+              <div class="mk-sim-sec-h" style="background:rgba(255,255,255,.6)"></div>
+            </div><div class="mk-page-section mk-sim-grid" style="background:#002a2a"><div class="mk-sim-card" style="background:rgba(0,100,100,.2);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(0,229,160,.6)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(0,100,100,.2);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(56,189,248,.5)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(0,100,100,.2);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(0,200,140,.55)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div></div><div class="mk-page-section">
+              <div class="mk-sim-cta" style="background:#003333">
+                <div class="mk-sim-cta-h" style="background:rgba(0,229,160,.8)"></div>
+                <div class="mk-sim-cta-p"></div>
+                <div class="mk-sim-cta-btns">
+                  <div class="mk-sim-cta-btn" style="background:#00e5a0"></div>
+                  <div class="mk-sim-cta-btn" style="background:transparent;border:1px solid rgba(255,255,255,.3)"></div>
+                </div>
+              </div>
+            </div><div class="mk-page-section mk-sim-footer" style="background:#001a1a"><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div></div>
+          </div></div>
           <div class="mk-overlay"></div>
-          <div class="mk-iframe-wrap">
-            <iframe
-              src="https://travel-flow-5.preview.emergentagent.com/"
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-forms"
-              scrolling="yes"
-              title="Live preview of travel-flow-5.preview.emergentagent.com"
-              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
-            ></iframe>
-            <div class="mk-iframe-loading">
-              <div class="mk-loading-spinner"></div>
-              <div class="mk-loading-text">Loading preview…</div>
-            </div>
-            <div class="mk-iframe-overlay">
-              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
-            </div>
+          <div class="mk-scroll-overlay">
+            <div class="mk-preview-hint">Scrolling Preview</div>
           </div>
         </div>
         <div class="pf-body">
@@ -481,23 +934,83 @@
             <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
             <div class="mk-chrome-bar"><span class="mk-chrome-url">luxury-interior-hub-3.preview.emergentagent.com</span></div>
           </div>
+          <div class="mk-scroll-wrap"><div class="mk-scroll-inner">
+            <div class="mk-page-section">
+              <div class="mk-sim-nav" style="background:#111111">
+                <div class="mk-sim-logo" style="background:#f5a623"></div>
+                <div class="mk-sim-nav-links"><span></span><span></span><span></span></div>
+                <div class="mk-sim-nav-cta" style="background:#f5a623"></div>
+              </div>
+            </div><div class="mk-page-section mk-sim-hero" style="background:#0a0a0a">
+              <div class="mk-sim-h1" style="background:#f5a623;width:80%"></div>
+              <div class="mk-sim-h1-2" style="background:rgba(255,255,255,.55)"></div>
+              <div class="mk-sim-p"></div>
+              <div class="mk-sim-p short"></div>
+              <div class="mk-sim-btns">
+                <div class="mk-sim-btn-a" style="background:#f5a623"></div>
+                <div class="mk-sim-btn-b"></div>
+              </div>
+              <div class="mk-sim-hero-img" style="background:linear-gradient(135deg,#333,#1a1a1a)"></div>
+            </div><div class="mk-page-section mk-sim-gallery" style="background:#111111"><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#3a3a3a,#2a2a2a)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#4a4a4a,#333)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#444,#2a2a2a)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#3a3a3a,#252525)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#454545,#303030)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#3d3d3d,#272727)"></div></div><div class="mk-page-section mk-sim-section-head" style="background:#080808">
+              <div class="mk-sim-label" style="background:#f5a623"></div>
+              <div class="mk-sim-sec-h" style="background:rgba(255,255,255,.6)"></div>
+            </div><div class="mk-page-section mk-sim-grid" style="background:#0a0a0a"><div class="mk-sim-card" style="background:rgba(245,166,35,.08);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(245,166,35,.6)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(245,166,35,.08);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(245,166,35,.4)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(245,166,35,.08);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(245,166,35,.5)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div></div><div class="mk-page-section mk-sim-features" style="background:#060606"><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(245,166,35,.6)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(245,166,35,.45)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(245,166,35,.55)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(245,166,35,.4)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div></div><div class="mk-page-section">
+              <div class="mk-sim-cta" style="background:#111">
+                <div class="mk-sim-cta-h" style="background:#f5a623"></div>
+                <div class="mk-sim-cta-p"></div>
+                <div class="mk-sim-cta-btns">
+                  <div class="mk-sim-cta-btn" style="background:#f5a623"></div>
+                  <div class="mk-sim-cta-btn" style="background:transparent;border:1px solid rgba(255,255,255,.3)"></div>
+                </div>
+              </div>
+            </div><div class="mk-page-section mk-sim-footer" style="background:#050505"><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div></div>
+          </div></div>
           <div class="mk-overlay"></div>
-          <div class="mk-iframe-wrap">
-            <iframe
-              src="https://luxury-interior-hub-3.preview.emergentagent.com/"
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-forms"
-              scrolling="yes"
-              title="Live preview of luxury-interior-hub-3.preview.emergentagent.com"
-              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
-            ></iframe>
-            <div class="mk-iframe-loading">
-              <div class="mk-loading-spinner"></div>
-              <div class="mk-loading-text">Loading preview…</div>
-            </div>
-            <div class="mk-iframe-overlay">
-              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
-            </div>
+          <div class="mk-scroll-overlay">
+            <div class="mk-preview-hint">Scrolling Preview</div>
           </div>
         </div>
         <div class="pf-body">
@@ -519,23 +1032,87 @@
             <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
             <div class="mk-chrome-bar"><span class="mk-chrome-url">salon-experience-17.preview.emergentagent.com</span></div>
           </div>
+          <div class="mk-scroll-wrap"><div class="mk-scroll-inner">
+            <div class="mk-page-section">
+              <div class="mk-sim-nav" style="background:#8b1a4a">
+                <div class="mk-sim-logo" style="background:rgba(255,255,255,.9)"></div>
+                <div class="mk-sim-nav-links"><span></span><span></span><span></span></div>
+                <div class="mk-sim-nav-cta" style="background:#f4a0c0"></div>
+              </div>
+            </div><div class="mk-page-section mk-sim-hero" style="background:#5a0a30">
+              <div class="mk-sim-h1" style="background:rgba(244,160,192,.9);width:80%"></div>
+              <div class="mk-sim-h1-2" style="background:rgba(255,255,255,.55)"></div>
+              <div class="mk-sim-p"></div>
+              <div class="mk-sim-p short"></div>
+              <div class="mk-sim-btns">
+                <div class="mk-sim-btn-a" style="background:#f4a0c0"></div>
+                <div class="mk-sim-btn-b"></div>
+              </div>
+              <div class="mk-sim-hero-img" style="background:linear-gradient(135deg,#8b1a4a,#5a0a30)"></div>
+            </div><div class="mk-page-section mk-sim-gallery" style="background:#fff5f9"><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#fce8f0,#f0c0d8)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#f8d0e8,#eaa0c8)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#fdd0e8,#f0a8d0)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#f5c0e0,#e898c8)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#fce0f0,#f0b8dc)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,#f8d8ec,#eca8d0)"></div></div><div class="mk-page-section mk-sim-section-head" style="background:#fff0f6">
+              <div class="mk-sim-label" style="background:rgba(139,26,74,.4)"></div>
+              <div class="mk-sim-sec-h" style="background:rgba(139,26,74,.7)"></div>
+            </div><div class="mk-page-section mk-sim-grid" style="background:#fff5f9"><div class="mk-sim-card" style="background:#fce8f0;border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(139,26,74,.5)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:#fce8f0;border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(244,114,182,.5)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:#fce8f0;border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(219,39,119,.4)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div></div><div class="mk-page-section mk-sim-testimonials" style="background:#fff0f6"><div class="mk-sim-tcard" style="background:#fce8f0;border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:#fce8f0;border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:#fce8f0;border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:#fce8f0;border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div></div><div class="mk-page-section">
+              <div class="mk-sim-cta" style="background:#8b1a4a">
+                <div class="mk-sim-cta-h" style="background:rgba(255,255,255,.85)"></div>
+                <div class="mk-sim-cta-p"></div>
+                <div class="mk-sim-cta-btns">
+                  <div class="mk-sim-cta-btn" style="background:#f4a0c0"></div>
+                  <div class="mk-sim-cta-btn" style="background:transparent;border:1px solid rgba(255,255,255,.3)"></div>
+                </div>
+              </div>
+            </div><div class="mk-page-section mk-sim-footer" style="background:#3d0020"><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div></div>
+          </div></div>
           <div class="mk-overlay"></div>
-          <div class="mk-iframe-wrap">
-            <iframe
-              src="https://salon-experience-17.preview.emergentagent.com/"
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-forms"
-              scrolling="yes"
-              title="Live preview of salon-experience-17.preview.emergentagent.com"
-              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
-            ></iframe>
-            <div class="mk-iframe-loading">
-              <div class="mk-loading-spinner"></div>
-              <div class="mk-loading-text">Loading preview…</div>
-            </div>
-            <div class="mk-iframe-overlay">
-              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
-            </div>
+          <div class="mk-scroll-overlay">
+            <div class="mk-preview-hint">Scrolling Preview</div>
           </div>
         </div>
         <div class="pf-body">
@@ -557,23 +1134,87 @@
             <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
             <div class="mk-chrome-bar"><span class="mk-chrome-url">luxury-celebrations-2.preview.emergentagent.com</span></div>
           </div>
+          <div class="mk-scroll-wrap"><div class="mk-scroll-inner">
+            <div class="mk-page-section">
+              <div class="mk-sim-nav" style="background:#1a0a30">
+                <div class="mk-sim-logo" style="background:#c084fc"></div>
+                <div class="mk-sim-nav-links"><span></span><span></span><span></span></div>
+                <div class="mk-sim-nav-cta" style="background:#c084fc"></div>
+              </div>
+            </div><div class="mk-page-section mk-sim-hero" style="background:#0d0620">
+              <div class="mk-sim-h1" style="background:rgba(192,132,252,.85);width:80%"></div>
+              <div class="mk-sim-h1-2" style="background:rgba(255,255,255,.55)"></div>
+              <div class="mk-sim-p"></div>
+              <div class="mk-sim-p short"></div>
+              <div class="mk-sim-btns">
+                <div class="mk-sim-btn-a" style="background:#c084fc"></div>
+                <div class="mk-sim-btn-b"></div>
+              </div>
+              <div class="mk-sim-hero-img" style="background:linear-gradient(135deg,#3d1a6e,#1a0a30)"></div>
+            </div><div class="mk-page-section mk-sim-gallery" style="background:#0d0620"><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,rgba(192,132,252,.3),rgba(167,139,250,.2))"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,rgba(192,132,252,.25),rgba(139,92,246,.2))"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,rgba(216,180,254,.3),rgba(192,132,252,.2))"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,rgba(167,139,250,.3),rgba(124,58,237,.2))"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,rgba(192,132,252,.28),rgba(167,139,250,.18))"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,rgba(216,180,254,.25),rgba(192,132,252,.18))"></div></div><div class="mk-page-section mk-sim-section-head" style="background:#0a0418">
+              <div class="mk-sim-label" style="background:#c084fc"></div>
+              <div class="mk-sim-sec-h" style="background:rgba(255,255,255,.6)"></div>
+            </div><div class="mk-page-section mk-sim-grid" style="background:#0a0418"><div class="mk-sim-card" style="background:rgba(192,132,252,.1);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(192,132,252,.6)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(192,132,252,.1);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(216,180,254,.5)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(192,132,252,.1);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(167,139,250,.55)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div></div><div class="mk-page-section mk-sim-testimonials" style="background:#0d0620"><div class="mk-sim-tcard" style="background:rgba(192,132,252,.12);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:rgba(192,132,252,.12);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:rgba(192,132,252,.12);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:rgba(192,132,252,.12);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div></div><div class="mk-page-section">
+              <div class="mk-sim-cta" style="background:#1a0a30">
+                <div class="mk-sim-cta-h" style="background:rgba(192,132,252,.85)"></div>
+                <div class="mk-sim-cta-p"></div>
+                <div class="mk-sim-cta-btns">
+                  <div class="mk-sim-cta-btn" style="background:#c084fc"></div>
+                  <div class="mk-sim-cta-btn" style="background:transparent;border:1px solid rgba(255,255,255,.3)"></div>
+                </div>
+              </div>
+            </div><div class="mk-page-section mk-sim-footer" style="background:#060210"><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div></div>
+          </div></div>
           <div class="mk-overlay"></div>
-          <div class="mk-iframe-wrap">
-            <iframe
-              src="https://luxury-celebrations-2.preview.emergentagent.com/"
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-forms"
-              scrolling="yes"
-              title="Live preview of luxury-celebrations-2.preview.emergentagent.com"
-              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
-            ></iframe>
-            <div class="mk-iframe-loading">
-              <div class="mk-loading-spinner"></div>
-              <div class="mk-loading-text">Loading preview…</div>
-            </div>
-            <div class="mk-iframe-overlay">
-              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
-            </div>
+          <div class="mk-scroll-overlay">
+            <div class="mk-preview-hint">Scrolling Preview</div>
           </div>
         </div>
         <div class="pf-body">
@@ -595,23 +1236,71 @@
             <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
             <div class="mk-chrome-bar"><span class="mk-chrome-url">shine-elite.preview.emergentagent.com</span></div>
           </div>
+          <div class="mk-scroll-wrap"><div class="mk-scroll-inner">
+            <div class="mk-page-section">
+              <div class="mk-sim-nav" style="background:#07070f">
+                <div class="mk-sim-logo" style="background:#38bdf8"></div>
+                <div class="mk-sim-nav-links"><span></span><span></span><span></span></div>
+                <div class="mk-sim-nav-cta" style="background:#38bdf8"></div>
+              </div>
+            </div><div class="mk-page-section mk-sim-hero" style="background:#050510">
+              <div class="mk-sim-h1" style="background:rgba(56,189,248,.85);width:80%"></div>
+              <div class="mk-sim-h1-2" style="background:rgba(255,255,255,.55)"></div>
+              <div class="mk-sim-p"></div>
+              <div class="mk-sim-p short"></div>
+              <div class="mk-sim-btns">
+                <div class="mk-sim-btn-a" style="background:#38bdf8"></div>
+                <div class="mk-sim-btn-b"></div>
+              </div>
+              <div class="mk-sim-hero-img" style="background:linear-gradient(135deg,#0f1a2e,#07070f)"></div>
+            </div><div class="mk-page-section mk-sim-gallery" style="background:#07070f"><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,rgba(56,189,248,.25),rgba(56,189,248,.12))"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,rgba(56,189,248,.2),rgba(56,189,248,.1))"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,rgba(56,189,248,.22),rgba(56,189,248,.12))"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,rgba(56,189,248,.18),rgba(56,189,248,.1))"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,rgba(56,189,248,.25),rgba(56,189,248,.12))"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,rgba(56,189,248,.2),rgba(56,189,248,.1))"></div></div><div class="mk-page-section mk-sim-section-head" style="background:#040410">
+              <div class="mk-sim-label" style="background:#38bdf8"></div>
+              <div class="mk-sim-sec-h" style="background:rgba(255,255,255,.6)"></div>
+            </div><div class="mk-page-section mk-sim-grid" style="background:#07070f"><div class="mk-sim-card" style="background:rgba(56,189,248,.08);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(56,189,248,.6)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(56,189,248,.08);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(56,189,248,.4)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(56,189,248,.08);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(56,189,248,.5)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div></div><div class="mk-page-section">
+              <div class="mk-sim-cta" style="background:#0f1a2e">
+                <div class="mk-sim-cta-h" style="background:rgba(56,189,248,.85)"></div>
+                <div class="mk-sim-cta-p"></div>
+                <div class="mk-sim-cta-btns">
+                  <div class="mk-sim-cta-btn" style="background:#38bdf8"></div>
+                  <div class="mk-sim-cta-btn" style="background:transparent;border:1px solid rgba(255,255,255,.3)"></div>
+                </div>
+              </div>
+            </div><div class="mk-page-section mk-sim-footer" style="background:#030308"><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div></div>
+          </div></div>
           <div class="mk-overlay"></div>
-          <div class="mk-iframe-wrap">
-            <iframe
-              src="https://shine-elite.preview.emergentagent.com/"
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-forms"
-              scrolling="yes"
-              title="Live preview of shine-elite.preview.emergentagent.com"
-              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
-            ></iframe>
-            <div class="mk-iframe-loading">
-              <div class="mk-loading-spinner"></div>
-              <div class="mk-loading-text">Loading preview…</div>
-            </div>
-            <div class="mk-iframe-overlay">
-              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
-            </div>
+          <div class="mk-scroll-overlay">
+            <div class="mk-preview-hint">Scrolling Preview</div>
           </div>
         </div>
         <div class="pf-body">
@@ -633,23 +1322,84 @@
             <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
             <div class="mk-chrome-bar"><span class="mk-chrome-url">modest-elegance-24.preview.emergentagent.com</span></div>
           </div>
+          <div class="mk-scroll-wrap"><div class="mk-scroll-inner">
+            <div class="mk-page-section">
+              <div class="mk-sim-nav" style="background:#1a1a2e">
+                <div class="mk-sim-logo" style="background:rgba(255,255,255,.7)"></div>
+                <div class="mk-sim-nav-links"><span></span><span></span><span></span></div>
+                <div class="mk-sim-nav-cta" style="background:#6c47ff"></div>
+              </div>
+            </div><div class="mk-page-section mk-sim-hero" style="background:#0d0d1e">
+              <div class="mk-sim-h1" style="background:rgba(255,255,255,.8);width:80%"></div>
+              <div class="mk-sim-h1-2" style="background:rgba(255,255,255,.55)"></div>
+              <div class="mk-sim-p"></div>
+              <div class="mk-sim-p short"></div>
+              <div class="mk-sim-btns">
+                <div class="mk-sim-btn-a" style="background:#6c47ff"></div>
+                <div class="mk-sim-btn-b"></div>
+              </div>
+              <div class="mk-sim-hero-img" style="background:linear-gradient(135deg,#2a1a4e,#1a1a3a)"></div>
+            </div><div class="mk-page-section mk-sim-section-head" style="background:#0a0a18">
+              <div class="mk-sim-label" style="background:rgba(108,71,255,.7)"></div>
+              <div class="mk-sim-sec-h" style="background:rgba(255,255,255,.6)"></div>
+            </div><div class="mk-page-section mk-sim-gallery" style="background:#f5f0eb"><div class="mk-sim-gallery-img" style="background:linear-gradient(180deg,#d4b896,#c4a07a)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(180deg,#8b6e52,#7a5a3a)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(180deg,#e8c9a0,#d4a870)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(180deg,#c4a07a,#a0806a)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(180deg,#7a5a4a,#5a3a2a)"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(180deg,#d4b896,#b8906a)"></div></div><div class="mk-page-section mk-sim-features" style="background:#0a0a18"><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(108,71,255,.6)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(245,166,35,.5)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(255,77,141,.55)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(56,189,248,.5)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div></div><div class="mk-page-section mk-sim-testimonials" style="background:#0d0d1e"><div class="mk-sim-tcard" style="background:rgba(108,71,255,.12);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:rgba(108,71,255,.12);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:rgba(108,71,255,.12);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div><div class="mk-sim-tcard" style="background:rgba(108,71,255,.12);border:1px solid rgba(255,255,255,.07)">
+              <div class="mk-sim-stars">★★★★★</div>
+              <div class="mk-sim-tcard-p"></div><div class="mk-sim-tcard-p"></div>
+              <div class="mk-sim-tcard-p" style="width:70%"></div>
+            </div></div><div class="mk-page-section">
+              <div class="mk-sim-cta" style="background:#1a1a2e">
+                <div class="mk-sim-cta-h" style="background:rgba(255,255,255,.8)"></div>
+                <div class="mk-sim-cta-p"></div>
+                <div class="mk-sim-cta-btns">
+                  <div class="mk-sim-cta-btn" style="background:#6c47ff"></div>
+                  <div class="mk-sim-cta-btn" style="background:transparent;border:1px solid rgba(255,255,255,.3)"></div>
+                </div>
+              </div>
+            </div><div class="mk-page-section mk-sim-footer" style="background:#07070f"><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div></div>
+          </div></div>
           <div class="mk-overlay"></div>
-          <div class="mk-iframe-wrap">
-            <iframe
-              src="https://modest-elegance-24.preview.emergentagent.com/"
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-forms"
-              scrolling="yes"
-              title="Live preview of modest-elegance-24.preview.emergentagent.com"
-              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
-            ></iframe>
-            <div class="mk-iframe-loading">
-              <div class="mk-loading-spinner"></div>
-              <div class="mk-loading-text">Loading preview…</div>
-            </div>
-            <div class="mk-iframe-overlay">
-              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
-            </div>
+          <div class="mk-scroll-overlay">
+            <div class="mk-preview-hint">Scrolling Preview</div>
           </div>
         </div>
         <div class="pf-body">
@@ -671,23 +1421,83 @@
             <div class="mk-chrome-dots"><span></span><span></span><span></span></div>
             <div class="mk-chrome-bar"><span class="mk-chrome-url">femme-strength-club.preview.emergentagent.com</span></div>
           </div>
+          <div class="mk-scroll-wrap"><div class="mk-scroll-inner">
+            <div class="mk-page-section">
+              <div class="mk-sim-nav" style="background:#0f0800">
+                <div class="mk-sim-logo" style="background:#fb923c"></div>
+                <div class="mk-sim-nav-links"><span></span><span></span><span></span></div>
+                <div class="mk-sim-nav-cta" style="background:#fb923c"></div>
+              </div>
+            </div><div class="mk-page-section mk-sim-hero" style="background:#0a0500">
+              <div class="mk-sim-h1" style="background:#fb923c;width:80%"></div>
+              <div class="mk-sim-h1-2" style="background:rgba(255,255,255,.55)"></div>
+              <div class="mk-sim-p"></div>
+              <div class="mk-sim-p short"></div>
+              <div class="mk-sim-btns">
+                <div class="mk-sim-btn-a" style="background:#fb923c"></div>
+                <div class="mk-sim-btn-b"></div>
+              </div>
+              <div class="mk-sim-hero-img" style="background:linear-gradient(135deg,#3d1500,#1a0800)"></div>
+            </div><div class="mk-page-section mk-sim-section-head" style="background:#080400">
+              <div class="mk-sim-label" style="background:#fb923c"></div>
+              <div class="mk-sim-sec-h" style="background:rgba(255,255,255,.6)"></div>
+            </div><div class="mk-page-section mk-sim-grid" style="background:#0a0500"><div class="mk-sim-card" style="background:rgba(251,146,60,.1);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(251,146,60,.6)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(251,146,60,.1);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(234,88,12,.5)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div><div class="mk-sim-card" style="background:rgba(251,146,60,.1);border:1px solid rgba(255,255,255,.06)">
+                  <div class="mk-sim-card-ico" style="background:rgba(251,146,60,.45)"></div>
+                  <div class="mk-sim-card-t" style="background:rgba(255,255,255,.45)"></div>
+                  <div class="mk-sim-card-p"></div>
+                  <div class="mk-sim-card-p s"></div>
+                </div></div><div class="mk-page-section mk-sim-gallery" style="background:#0f0800"><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,rgba(251,146,60,.35),rgba(234,88,12,.2))"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,rgba(251,146,60,.3),rgba(234,88,12,.18))"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,rgba(251,146,60,.28),rgba(234,88,12,.16))"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,rgba(251,146,60,.32),rgba(234,88,12,.2))"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,rgba(251,146,60,.25),rgba(234,88,12,.15))"></div><div class="mk-sim-gallery-img" style="background:linear-gradient(135deg,rgba(251,146,60,.3),rgba(234,88,12,.18))"></div></div><div class="mk-page-section mk-sim-features" style="background:#080400"><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(251,146,60,.6)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(251,146,60,.45)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(234,88,12,.55)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div><div class="mk-sim-feat-row">
+                <div class="mk-sim-feat-ico" style="background:rgba(251,146,60,.4)"></div>
+                <div class="mk-sim-feat-text"></div>
+              </div></div><div class="mk-page-section">
+              <div class="mk-sim-cta" style="background:#0f0800">
+                <div class="mk-sim-cta-h" style="background:#fb923c"></div>
+                <div class="mk-sim-cta-p"></div>
+                <div class="mk-sim-cta-btns">
+                  <div class="mk-sim-cta-btn" style="background:#fb923c"></div>
+                  <div class="mk-sim-cta-btn" style="background:transparent;border:1px solid rgba(255,255,255,.3)"></div>
+                </div>
+              </div>
+            </div><div class="mk-page-section mk-sim-footer" style="background:#050300"><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div><div class="mk-sim-footer-col">
+              <div class="mk-sim-footer-t" style="background:rgba(255,255,255,.35)"></div>
+              <div class="mk-sim-footer-l"></div><div class="mk-sim-footer-l" style="width:70%"></div>
+              <div class="mk-sim-footer-l" style="width:85%"></div>
+            </div></div>
+          </div></div>
           <div class="mk-overlay"></div>
-          <div class="mk-iframe-wrap">
-            <iframe
-              src="https://femme-strength-club.preview.emergentagent.com/"
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-forms"
-              scrolling="yes"
-              title="Live preview of femme-strength-club.preview.emergentagent.com"
-              onload="this.closest('.mk-iframe-loading') && this.closest('.mk-iframe-loading').classList.add('loaded'); var l=this.closest('.mk-stage').querySelector('.mk-iframe-loading'); if(l) l.classList.add('loaded');"
-            ></iframe>
-            <div class="mk-iframe-loading">
-              <div class="mk-loading-spinner"></div>
-              <div class="mk-loading-text">Loading preview…</div>
-            </div>
-            <div class="mk-iframe-overlay">
-              <div class="mk-preview-hint">Live Preview · Scroll to explore</div>
-            </div>
+          <div class="mk-scroll-overlay">
+            <div class="mk-preview-hint">Scrolling Preview</div>
           </div>
         </div>
         <div class="pf-body">
@@ -765,69 +1575,6 @@
 <script src="script.js"></script>
 <script src="js/portfolio.js"></script>
 
-<script>
-/* ══════════════════════════════════════════════════════════
-   LIVE IFRAME PREVIEW — interaction manager
-   - Marks iframe loading states
-   - Stops auto-scroll animation when card is hovered
-   - Re-enables auto-scroll on mouse leave
-   - Intersection Observer: only start loading iframes
-     when the card is about to enter the viewport (perf)
-══════════════════════════════════════════════════════════ */
-(function initIframePreviews() {
-  var cards = document.querySelectorAll('.pf-card');
 
-  /* Lazy-load: set src only when card is near viewport */
-  var lazyIO = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (!entry.isIntersecting) return;
-      var iframe = entry.target.querySelector('iframe[data-src]');
-      if (iframe) {
-        iframe.src = iframe.dataset.src;
-        delete iframe.dataset.src;
-      }
-      lazyIO.unobserve(entry.target);
-    });
-  }, { rootMargin: '200px' });
-
-  cards.forEach(function(card) {
-    var iframe = card.querySelector('iframe');
-    if (!iframe) return;
-
-    /* Convert src → data-src for lazy loading */
-    if (iframe.src && iframe.src !== window.location.href) {
-      iframe.dataset.src = iframe.src;
-      iframe.removeAttribute('src');
-    }
-
-    /* iframe loaded → hide loading skeleton */
-    iframe.addEventListener('load', function() {
-      var loading = card.querySelector('.mk-iframe-loading');
-      if (loading) {
-        loading.classList.add('loaded');
-        setTimeout(function() { loading.style.display='none'; }, 600);
-      }
-    });
-
-    lazyIO.observe(card);
-
-    /* Hover: stop auto-scroll, enable scroll interaction */
-    card.addEventListener('mouseenter', function() {
-      if (iframe) iframe.style.animationPlayState = 'paused';
-    });
-    card.addEventListener('mouseleave', function() {
-      if (iframe) iframe.style.animationPlayState = 'running';
-    });
-  });
-
-  /* Make "View Live Site" button open in new tab, not the card modal */
-  document.querySelectorAll('.pf-btn').forEach(function(btn) {
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-    });
-  });
-
-})();
-</script>
 </body>
 </html>
