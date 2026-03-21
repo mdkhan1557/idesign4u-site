@@ -1,0 +1,16 @@
+{
+  "name": "idesign4u-site",
+  "version": "1.0.0",
+  "description": "Premium web design, branding & digital marketing website",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'No build step required for static HTML site'",
+    "test": "echo 'No tests configured'"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^1.1.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
